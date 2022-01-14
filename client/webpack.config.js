@@ -16,6 +16,9 @@ module.exports = {
   resolve: {
     extensions: [".js", ".jsx", ".tsx", ".ts"],
   },
+  output: {
+    assetModuleFilename: "images/[hash]][ext][query]",
+  },
   plugins: [new MiniCssExtractPlugin()],
   module: {
     rules: [
@@ -42,7 +45,13 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        type: "asset/resource",
+        type: "asset",
+        // Set limit for inline
+        // parser: {
+        //   dataUrlCondition: {
+        //     maxSize: 30 * 1024, // 30kb
+        //   },
+        // },
       },
     ],
   },
