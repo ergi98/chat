@@ -7,21 +7,16 @@ let target = "web";
 
 if (process.env.NODE_ENV === "production") {
   mode = "production";
-  target="browserslist"
+  target = "browserslist";
 }
 
 module.exports = {
   mode: mode,
   target: target,
-  // entry: "./src/index.js",
-  // output: {
-  //   filename: "bundle.[contenthash].js",
-  //   path: path.resolve(__dirname, "dist"),
-  // },
-  // resolve: {
-  //   modules: [__dirname, "src", "node_modules"],
-  //   extensions: [".js", ".jsx", ".tsx", ".ts"],
-  // },   plugins: [new MiniCssExtractPlugin()],
+  resolve: {
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
+  },
+  plugins: [new MiniCssExtractPlugin()],
   module: {
     rules: [
       {
@@ -34,11 +29,20 @@ module.exports = {
       {
         test: /\.(s[ac]|c)ss$/i,
         use: [
-          MiniCssExtractPlugin.loader,
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: "",
+            },
+          },
           "css-loader",
           "postcss-loader",
           "sass-loader",
         ],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: "asset/resource",
       },
     ],
   },

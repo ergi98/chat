@@ -1,5 +1,6 @@
-const temp = "ergiiiiiiiiiiiiii";
+import { render } from "react-dom";
+import "./styles/index.css";
 
-for(let char of temp) {
-  console.log(char)
-}
+import App from "./App";
+
+render(<App />, document.getElementById("root"));
