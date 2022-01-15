@@ -1,0 +1,74 @@
+.message {
+  max-width: 60vw;
+  width: fit-content;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: #c5c5c5;
+  position: relative;
+}
+
+.message:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.mine {
+  background-color: #533deb;
+  margin-left: auto;
+  margin-right: 5px;
+}
+
+.theirs {
+  background-color: #242424;
+}
+
+.theirs .content {
+  padding-left: 3px;
+}
+
+.mine .content {
+  padding-right: 3px;
+}
+
+.mine:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-bottom: 17px solid #533deb;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  bottom: 5px;
+  right: -10px;
+}
+
+.theirs:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-bottom: 17px solid #242424;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  bottom: 5px;
+  left: -10px;
+}
+
+.check-svg {
+  width: 14px;
+  height: 14px;
+  color: rgb(109, 109, 109);
+}
+
+.sent-at {
+  font-size: 14px;
+  margin-right: 5px;
+  color: rgb(109, 109, 109);
+}
+
+.bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

@@ -1,0 +1,24 @@
+.chat {
+  width: 100vw;
+  height: calc(100vh - 49px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 10px 20px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242424;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #533deb;
+}
