@@ -25,7 +25,7 @@ function App() {
   // Resize the chat depending on the input field height
   let observer = new ResizeObserver((entries) => {
     for (let entry of entries) {
-      chatRef.current.style.height = `calc(100vh - ${entry.borderBoxSize[0].blockSize}px)`;
+      chatRef.current.style.height = `calc(100vh - ${entry.target.offsetHeight}px)`;
     }
   });
 
