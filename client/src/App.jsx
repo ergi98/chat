@@ -12,8 +12,9 @@ import io from "socket.io-client";
 
 // Context
 import { UserContext } from "./UserContext";
+import SelectRoom from "./components/SelectRoom";
 
-const socket = io("localhost:5050");
+const socket = io(window.location.href);
 
 function App() {
   const sendRef = useRef(null);
@@ -40,16 +41,15 @@ function App() {
   }, [sendRef]);
 
   // Socket
-  useEffect(() => {
-    socket.on("connect", () => {
-      setUser({
-        socketId: socket.id,
-        userId: v4(),
-      });
-      socket.emit("connected", socket.id);
-    });
-    return () => socket && socket.disconnect();
-  }, []);
+  // useEffect(() => {
+  //   socket.on("connect", () => {
+  //     setUser({
+  //       socketId: socket.id,
+  //     });
+  //     socket.emit("connected", socket.id);
+  //   });
+  //   return () => socket && socket.disconnect();
+  // }, []);
 
   useEffect(() => {
     function scrollToBottom() {
@@ -76,7 +76,6 @@ function App() {
   }, [user]);
   async function setMessage(text) {
     try {
-      console.log(user);
       let message = {
         _id: v4(),
         text,
@@ -87,7 +86,7 @@ function App() {
       setMessages((previousMessages) => [...previousMessages, message]);
       socket.emit("send-message", message);
     } catch (err) {
-    } finally {
+      alert(err);
     }
   }
 
@@ -99,16 +98,28 @@ function App() {
     setMessages(updatedMessages);
   }
 
+  function setUserData(userData) {
+    setUser({
+      _id: v4(),
+      roomId: userData.roomId,
+      name: userData.name,
+    });
+  }
+
   return (
     <div style={{ overflow: "none" }}>
-      <UserContext.Provider value={user}>
-        <Chat ref={chatRef} messages={messages} />
-        <Send
-          ref={sendRef}
-          setMessage={setMessage}
-          updateMessage={updateMessage}
-        />
-      </UserContext.Provider>
+      {user && user.roomId ? (
+        <UserContext.Provider value={user}>
+          <Chat ref={chatRef} messages={messages} />
+          <Send
+            ref={sendRef}
+            setMessage={setMessage}
+            updateMessage={updateMessage}
+          />
+        </UserContext.Provider>
+      ) : (
+        <SelectRoom setUserData={setUserData} />
+      )}
     </div>
   );
 }
