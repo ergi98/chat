@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./chat.module.css";
 import Message from "./Message";
 
@@ -32,15 +32,14 @@ import Message from "./Message";
 
 // let messages = Array(100).fill(message);
 
-function Chat() {
-  const [messages, setMessages] = useState([]);
+const Chat = React.forwardRef((props, ref) => {
   return (
-    <div className={styles.chat}>
-      {messages.map((message) => (
-        <Message message={message} />
+    <div ref={ref} className={styles.chat}>
+      {props.messages.map((message) => (
+        <Message key={message._id} message={message} />
       ))}
     </div>
   );
-}
+});
 
 export default Chat;

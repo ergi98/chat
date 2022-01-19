@@ -28,10 +28,24 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  socket.on("connected", (data) => {
+    console.log("user connected", data);
+  });
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
+  socket.on("send-message", (message) => {
+    message.sentAt = new Date();
+    io.emit("message", message);
+  });
+  // socket.on("read", (message, member) => {
+  //   message.sentAt = new Date();
+  //   socket.emit("message", message);
+  // });
+  // socket.on("typing", (member) => {
+  //   message.sentAt = new Date();
+  //   socket.emit("message", message);
+  // });
 });
 
 server.listen(process.env.PORT, () => {

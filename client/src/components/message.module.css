@@ -1,6 +1,7 @@
 .message {
   max-width: 60vw;
   width: fit-content;
+  min-width: 90px;
   padding: 10px;
   border-radius: 8px;
   font-size: 16px;
@@ -11,6 +12,18 @@
 
 .message:not(:last-child) {
   margin-bottom: 10px;
+}
+
+.sending-text {
+  font-size: 10px;
+  color: rgb(109, 109, 109);
+  margin-right: 6px;
+}
+
+.sending-div {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
 }
 
 .mine {
@@ -58,17 +71,40 @@
 .check-svg {
   width: 14px;
   height: 14px;
-  color: rgb(109, 109, 109);
 }
 
 .sent-at {
-  font-size: 14px;
+  font-size: 11px;
   margin-right: 5px;
-  color: rgb(109, 109, 109);
+}
+
+.theirs .check-svg,
+.theirs .sent-at {
+  color: #6d6d6d;
+}
+
+.mine .check-svg,
+.mine .sent-at {
+  color: #b2b2b2;
 }
 
 .bottom-row {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.sending-icon {
+  transform-origin: center;
+  animation: rotate 2s linear 0.5s infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

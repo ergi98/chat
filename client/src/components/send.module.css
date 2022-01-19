@@ -1,44 +1,48 @@
 .send {
-  height: 49px;
-  padding: 2px 6px;
+  padding: 12px 8px;
   background: rgb(26, 26, 26);
   border-radius: 10px 10px 0 0;
+  width: 100vw !important;
 }
 
-.input-form {
-  display: flex;
-  height: 100%;
-  align-items: center;
+.input-container {
+  position: relative;
+  border-radius: 10px;
+  background-color: #242424;
 }
 
 .input-field {
-
-  font-family: 'Helvetica' !important;
-  resize: none;
   outline: none;
-  height: 35px;
-  padding-left: 8px;
-  padding-right: 45px;
-  border-radius: 10px;
-  background-color: #242424;
-  width: 100vw !important;
-  position: relative;
-  border: none;
 
-  /* box-shadow: 1px 2px 8px 0px #111111bf; */
+  min-height: 50px;
+  max-height: 105px;
+  width: 90%;
+  padding-left: 4px;
 
-  caret-color: #eeeeee;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+
+  white-space: pre;
+  line-break: auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   color: #eeeeee;
-
+  caret-color: #eeeeee;
   font-weight: normal;
-
   font-size: 16px;
+  line-height: 24px;
   letter-spacing: 0.55px;
+  font-family: "Helvetica" !important;
 }
 
 .submit-field {
   position: absolute;
-  right: 17px;
+  right: 12px;
+  bottom: 50%;
+  transform: translateY(50%);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -52,4 +56,9 @@
   justify-content: center;
   padding-bottom: 2px;
   padding-left: 7px;
+}
+
+.placeholder {
+  opacity: 0.5;
+  user-select: none;
 }

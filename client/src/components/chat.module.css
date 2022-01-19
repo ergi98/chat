@@ -1,9 +1,10 @@
 .chat {
   width: 100vw;
-  height: calc(100vh - 49px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   padding: 10px 20px;
+  scroll-behavior: smooth;
 }
 
 ::-webkit-scrollbar {

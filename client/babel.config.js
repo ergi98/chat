@@ -1,4 +1,4 @@
-const plugins = [];
+const plugins = ["@babel/plugin-transform-runtime"];
 
 if (process.env.NODE_ENV !== "production") {
   plugins.push("react-refresh/babel");

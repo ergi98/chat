@@ -227,5 +227,5 @@ table {
 
 .chat-app {
   background-color: #333333;
-  overflow: none;
+  overflow: hidden;
 }
