@@ -220,12 +220,15 @@ table {
 }
 
 .height-full {
-  height: 100vh;
-  max-height: 100vh;
-  max-height: 100vw;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
 
 .chat-app {
   background-color: black;
   overflow: hidden;
+}
+
+.root-html {
+  height: -webkit-fill-available;
 }
