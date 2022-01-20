@@ -1,34 +1,40 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import styles from "./send.module.css";
 
+import { Input, Button } from "antd";
+import { SendOutlined } from "@ant-design/icons";
+
+const { TextArea } = Input;
+
 const Send = React.forwardRef((props, ref) => {
-  const userInput = useRef({});
+  const [userInput, setUserInput] = useState(null);
 
-  async function validateMessage(event) {
+  async function submitMessage(event) {
     event.preventDefault();
-    let message = userInput.current.innerText;
-    emptyInput();
-    await props.setMessage(message);
-  }
-
-  function emptyInput() {
-    userInput.current.innerHTML = "";
+    await props.setMessage(userInput);
+    setUserInput(null);
   }
 
   return (
     <div ref={ref} className={styles.send}>
-      <form onSubmit={validateMessage}>
+      <form onSubmit={submitMessage}>
         <div className={styles["input-container"]}>
-          <div
-            ref={userInput}
+          <TextArea
+            value={userInput}
+            onPressEnter={submitMessage}
+            onChange={(event) => setUserInput(event.target.value)}
+            autoSize={{ minRows: 1, maxRows: 6 }}
+            bordered={false}
             className={styles["input-field"]}
-            contentEditable={true}
+            placeholder="Write something..."
           />
-          <button className={styles["submit-field"]} type="submit">
-            <svg viewBox="0 0 24 24">
-              <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
-            </svg>
-          </button>
+          <Button
+            className={styles["submit-button"]}
+            onClick={submitMessage}
+            icon={<SendOutlined />}
+            shape="circle"
+            type="primary"
+          />
         </div>
       </form>
     </div>

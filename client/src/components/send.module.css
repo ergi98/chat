@@ -15,21 +15,14 @@
 
 .input-field {
   outline: none;
-
-  min-height: 50px;
-  max-height: 105px;
-  width: 90%;
-  padding-left: 4px;
+  width: calc(100% - 58px);
+  padding: 15px 0px 15px 10px;
 
   overflow-x: auto;
   overscroll-behavior: contain;
+  border: none;
 
-  white-space: pre;
-  line-break: auto;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  background-color: transparent;
 
   color: #eeeeee;
   caret-color: #eeeeee;
@@ -40,24 +33,14 @@
   font-family: "Helvetica" !important;
 }
 
-.submit-field {
+.submit-button {
   position: absolute;
   right: 12px;
   bottom: 50%;
   transform: translateY(50%);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  outline: none;
-  border: none;
+  border: 1px solid #533deb !important;
   color: #533deb;
-  border: 1px solid #533deb;
   background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 2px;
-  padding-left: 7px;
 }
 
 .placeholder {

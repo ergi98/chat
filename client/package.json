@@ -7,6 +7,8 @@
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
+    "antd": "4.18.4",
+    "axios": "0.25.0",
     "framer-motion": "6.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",

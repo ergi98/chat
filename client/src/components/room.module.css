@@ -34,10 +34,10 @@
 }
 
 .copy {
-  border: none;
-  color: #eee;
-  background: #533deb;
   letter-spacing: 1px;
-  padding: 10px 15px;
-  border-radius: 5px;
+}
+
+.loading-text {
+  color: rgb(238, 238, 238);
+  margin-top: 12px;
 }
