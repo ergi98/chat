@@ -1,8 +1,9 @@
 import { render } from "react-dom";
 
-import "antd/dist/antd.variable.min.css";
 import { ConfigProvider } from "antd";
 
+// CSS
+import "antd/dist/antd.variable.min.css";
 import "./styles/index.css";
 
 // Components

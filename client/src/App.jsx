@@ -1,20 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 
 // Components
-import Chat from "./components/Chat";
-import Send from "./components/Send";
+import NotFound from "./components/NotFound";
+import SelectRoom from "./components/SelectRoom";
+import ChatRoom from "./components/ChatRoom";
 
 // UUID
 import { v4 } from "uuid";
 
 // Socket
-import io from "socket.io-client";
+// import io from "socket.io-client";
 
 // Context
 import { UserContext } from "./UserContext";
-import SelectRoom from "./components/SelectRoom";
 
-const socket = io(window.location.href);
+// Router
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// const socket = io(window.location.href);
 
 function App() {
   const sendRef = useRef(null);
@@ -107,20 +110,19 @@ function App() {
   }
 
   return (
-    <div style={{ overflow: "none" }}>
-      {user && user.roomId ? (
-        <UserContext.Provider value={user}>
-          <Chat ref={chatRef} messages={messages} />
-          <Send
-            ref={sendRef}
-            setMessage={setMessage}
-            updateMessage={updateMessage}
-          />
-        </UserContext.Provider>
-      ) : (
-        <SelectRoom setUserData={setUserData} />
-      )}
-    </div>
+    <BrowserRouter>
+      <UserContext.Provider value={user}>
+        <Routes>
+          <Route path="/" element={<SelectRoom />}>
+            <Route path=":roomId" element={<SelectRoom />} />
+          </Route>
+          <Route path="chat" element={<ChatRoom />}>
+            <Route path=":roomId" element={<ChatRoom />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </UserContext.Provider>
+    </BrowserRouter>
   );
 }
 

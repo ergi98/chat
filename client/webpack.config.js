@@ -32,6 +32,7 @@ module.exports = {
   },
   entry: "./src/index.js",
   output: {
+    publicPath: "/",
     path: path.resolve(__dirname, "dist"),
     assetModuleFilename: "images/[hash]][ext][query]",
   },
@@ -71,11 +72,13 @@ module.exports = {
       },
     ],
   },
+
   devtool: "source-map",
   devServer: {
     static: {
       directory: path.join(__dirname, "/dist"),
     },
+    historyApiFallback: true,
     hot: true,
     compress: true,
     port: 9090,
