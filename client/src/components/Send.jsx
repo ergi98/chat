@@ -11,7 +11,8 @@ const Send = React.forwardRef((props, ref) => {
 
   async function submitMessage(event) {
     event.preventDefault();
-    await props.setMessage(userInput);
+    if (typeof userInput === "string" && userInput !== "")
+      await props.addMessage(userInput);
     setUserInput(null);
   }
 

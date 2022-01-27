@@ -1,18 +1,18 @@
 import React, { useContext } from "react";
-import { UserContext } from "../UserContext";
 import styles from "./message.module.css";
 
 // Animation
 import { motion } from "framer-motion";
 
 function Message({ message }) {
-  const user = useContext(UserContext);
+  let user = { socketId: 1 };
+
+  // TODO: store the token in context
 
   function displayDate(date) {
     let localDate = new Date(date);
     let hours = localDate.getHours().toString().padStart(2, "0");
     let minutes = localDate.getMinutes().toString().padStart(2, "0");
-
     let output = `${hours}:${minutes}`;
     return output;
   }

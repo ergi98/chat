@@ -1,16 +1,15 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useContext, useEffect, useReducer } from "react";
 import styles from "./room.module.css";
+
+// JWT
+import jwt_decode from "jwt-decode";
 
 import {
   create as createRoom,
-  checkIfRoomExists,
+  getRoom,
   assignUserToRoom,
 } from "../mongo/room.js";
-import {
-  create as createUser,
-  getUser,
-  checkIfUserBelongsToRoom,
-} from "../mongo/user.js";
+import { create as createUser } from "../mongo/user.js";
 
 // ANTD
 import { Button, message, Spin } from "antd";
@@ -18,32 +17,32 @@ import { Button, message, Spin } from "antd";
 // Router
 import { useParams, useNavigate } from "react-router-dom";
 
+// Context
+import { SocketContext } from "../SocketContext.js";
+
 const initialState = {
   loading: true,
-  room: null,
-  user: null,
-  text: "Creating a room for you to chat in ...",
+  text: "",
 };
 
 function reducer(state, action) {
   switch (action.type) {
-    case "created-room":
+    case "invited-user-arrived":
+    case "getting-room":
+    case "creating-room":
+    case "creating-user":
       return {
         ...state,
-        room: action.payload,
-        text: "Creating your user ...",
+        loading: true,
+        text: action.message,
       };
-    case "created-user":
+    case "waiting":
+    case "room-error":
+    case "invited-user-assigned":
       return {
         ...state,
         loading: false,
-        user: action.payload,
-        text: "Invite a friend to chat together by sending them the link below",
-      };
-    case "assigned-user-to-room":
-      return {
-        ...state,
-        room: action.payload,
+        text: action.message,
       };
     default:
       return {
@@ -57,80 +56,135 @@ function SelectRoom() {
 
   const { roomId } = useParams();
 
+  const socket = useContext(SocketContext);
+
   const [state, dispatch] = useReducer(reducer, initialState);
 
   function copyLink() {
+    let JWT = JSON.parse(localStorage.getItem("jwt"));
+    if (!JWT) return;
+    let decoded = jwt_decode(JWT);
     navigator.clipboard.writeText(
-      `Hey lets chat together. Click the link below to join me! \n ${window.location.href}${state.room._id}`
+      `Hey lets chat together.` +
+        `Click the link below to join me! \n` +
+        `http://${window.location.host}/${decoded.roomId}`
     );
     message.success("Room link copied");
+  }
+
+  useEffect(() => {
+    const JWT = JSON.parse(localStorage.getItem("jwt"));
+    JWT && setNewMemberListener();
+  }, []);
+
+  function setNewMemberListener() {
+    socket.on("new-member", (data) => {
+      let JWT = JSON.parse(localStorage.getItem("jwt"));
+      let decoded = jwt_decode(JWT);
+      if (decoded._id !== data._id) {
+        message.info("Redirecting to chat ...");
+        setTimeout(() => {
+          navigate(`/chat/${data.roomId}`, { replace: true });
+        }, 1000);
+      }
+    });
   }
 
   useEffect(async () => {
     async function initialSetup() {
       try {
-        let user = "";
-        let jwt = JSON.parse(localStorage.getItem("jwt"));
-        let room = JSON.parse(localStorage.getItem("room"));
+        const currentToken = JSON.parse(localStorage.getItem("jwt"));
 
-        if (!roomId && room !== null) {
-          navigate(`/${room._id}`, { replace: true });
-        }
+        let status = await checkForRedirect(currentToken);
+        // If the JWT exists there is no point in handling user creation
+        if (status) return;
 
-        if (!roomId) {
-          let data = await createRoom();
-          room = data.room;
-          dispatch({
-            type: "created-room",
-            payload: room,
-          });
-        } else if (roomId) {
-          let data = await checkIfRoomExists(roomId);
-          room = data.room;
-          if (!room) {
-            dispatch({
-              type: "room-error",
-            });
-            throw new Error(
-              "The room you are trying to join does not seem to exists anymore."
-            );
-          } else {
-            dispatch({
-              type: "created-room",
-              payload: room,
-            });
-          }
-        }
+        roomId
+          ? await handleInvite(currentToken)
+          : await handleNewUser(currentToken);
 
-        if (jwt === null) {
-          let data = await createUser(room._id);
-          user = data.user;
-          dispatch({
-            type: "created-user",
-            payload: user,
-          });
-        } else {
-          let data = await getUser();
-          user = data.user;
-          dispatch({
-            type: "created-user",
-            payload: user,
-          });
-        }
+        const newToken = JSON.parse(localStorage.getItem("jwt"));
 
-        let result = await checkIfUserBelongsToRoom();
-
-        if (result.belongs) {
-          navigate(`/chat/${room._id}`, { replace: true });
-        } else {
-          await assignUserToRoom();
-          navigate(`/chat/${room._id}`, { replace: true });
-        }
+        socket.emit("new-member", newToken);
+        setNewMemberListener();
       } catch (err) {
-        console.log(err);
         message.error(err.message);
       }
     }
+
+    async function checkForRedirect(token) {
+      if (token) {
+        let { room } = await getRoom();
+        if (room) {
+          room.members?.length > 1
+            ? navigate(`/chat/${room._id}`, { replace: true })
+            : dispatch({
+                type: "waiting",
+                message: "Waiting for a friend to join you ..",
+              });
+          return true;
+        } else {
+          dispatch({
+            type: "room-error",
+            message: "The room you are trying to join is no longer active.",
+          });
+        }
+      }
+      return false;
+    }
+
+    async function handleInvite(token) {
+      dispatch({
+        type: "invited-user-arrived",
+        message: "Welcome! \n We are getting things ready for you ...",
+      });
+      if (!token) {
+        await createUser(roomId);
+      }
+      let data = await getRoom();
+      if (data.room) {
+        await assignUserToRoom();
+        dispatch({
+          type: "invited-user-assigned",
+          message: "All set! Redirecting you to your room.",
+        });
+        setTimeout(() => {
+          navigate(`/chat/${data.room._id}`, { replace: true });
+        }, 1000);
+      } else {
+        dispatch({
+          type: "room-error",
+          message: "The room you are trying to join does no longer exist.",
+        });
+      }
+    }
+
+    async function handleNewUser(token) {
+      if (token) {
+        dispatch({ type: "getting-room", message: "Getting your room ..." });
+        let { room } = await getRoom();
+        if (room) {
+          dispatch({
+            type: "room-error",
+            message: "The room created for you is no longer active.",
+          });
+        } else {
+          dispatch();
+        }
+      } else {
+        dispatch({ type: "creating-room", message: "Creating your room ..." });
+        let { room } = await createRoom();
+        dispatch({ type: "creating-user", message: "Creating your user ..." });
+        await createUser(room._id);
+        await assignUserToRoom();
+        dispatch({
+          type: "waiting",
+          message:
+            "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
+        });
+      }
+    }
+
     initialSetup();
   }, []);
 
@@ -148,7 +202,7 @@ function SelectRoom() {
             <>
               <div className={styles.hint}>{state.text}</div>
               <div className={styles.link}>
-                {`${window.location.href}${state.room?._id}`}
+                {`http://${window.location.host}`}
               </div>
               <Button onClick={copyLink} type="primary" className={styles.copy}>
                 Copy Link

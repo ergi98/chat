@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export function createToken(userData) {
   return jwt.sign(
     {
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 4,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
       ...userData,
     },
     process.env.SECRET_KEY
@@ -15,7 +15,7 @@ export async function validateToken(bearer) {
     const jwt = bearer.split(" ")[1];
     return await verify(jwt);
   } else {
-    return false;
+    return { isValid: false };
   }
 }
 
@@ -26,8 +26,11 @@ export function decodeToken(bearer) {
 const verify = async (userJwt) => {
   return jwt.verify(userJwt, process.env.SECRET_KEY, (error, res) => {
     if (error) {
-      return false;
+      return {
+        isValid: false,
+        error,
+      };
     }
-    return true;
+    return { isValid: true };
   });
 };

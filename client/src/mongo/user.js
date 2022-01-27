@@ -12,8 +12,9 @@ export async function create(roomId) {
       user: result.data.user,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ??
+      err.response?.data?.message ??
         "A problem occurred while creating your room. Please refresh."
     );
   }
@@ -26,22 +27,24 @@ export async function getUser() {
       user: result.data.user,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ??
+      err.response?.data?.message ??
         "A problem occurred while getting your user. Please refresh."
     );
   }
 }
 
-export async function checkIfUserBelongsToRoom(roomId) {
+export async function checkIfUserBelongsToRoom() {
   try {
-    let result = await axios.post("/check-if-belongs-to-room", { roomId });
+    let result = await axios.post("/check-if-belongs-to-room");
     return {
       belongs: result.data.belongs,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ??
+      err.response?.data?.message ??
         "A problem occurred while validating your user. Please refresh."
     );
   }

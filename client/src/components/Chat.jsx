@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./chat.module.css";
+
+// Components
 import Message from "./Message";
 
 const Chat = React.forwardRef((props, ref) => {

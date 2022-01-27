@@ -6,31 +6,33 @@ export default class RoomController {
       const room = await RoomSchema.create({});
       res.status(200).send({ room });
     } catch (err) {
+      console.log(err);
       res.status(400).send({ message: "There was an error creating room" });
     }
   }
 
-  static async checkIfRoomExists(req, res) {
+  static async getRoom(req, res) {
     try {
-      const roomData = await RoomSchema.findById(req.query.roomId);
+      const roomData = await RoomSchema.findById(req.headers.room);
       res.status(200).send({ roomData });
     } catch (err) {
+      console.log(err);
       res.status(400).send({ message: "There was an error checking room" });
     }
   }
 
   static async assignUserToRoom(req, res) {
     try {
-      console.log(req.headers, "HERE");
       const roomData = await RoomSchema.findByIdAndUpdate(
         req.headers.room,
         {
-          $push: { members: req.headers.user },
+          $addToSet: { members: req.headers.user },
         },
-        { new: true }
+        { returnDocument: "after" }
       );
-      return { roomData };
+      res.status(200).send({ roomData });
     } catch (err) {
+      console.log(err);
       res
         .status(400)
         .send({ message: "There was an error while assigning room" });

@@ -3,40 +3,43 @@ import axios from "axios";
 export async function create() {
   try {
     let result = await axios.post("/create-room");
-
-    localStorage.setItem("room", JSON.stringify(result.data.room));
     return {
       room: result.data.room,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ??
+      err.response?.data?.message ??
         "A problem occurred while creating your room. Please refresh"
     );
   }
 }
 
-export async function checkIfRoomExists(roomId) {
+export async function getRoom() {
   try {
-    let result = await axios.get("/check-if-room-exists", {
-      params: { roomId },
-    });
+    let result = await axios.get("/get-room");
     return {
       room: result.data.roomData,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ?? "A problem occurred while checking if room exists!"
+      err.response?.data?.message ??
+        "A problem occurred while getting your room!"
     );
   }
 }
 
 export async function assignUserToRoom() {
   try {
-    await axios.post("/assign-to-room");
+    let result = await axios.post("/assign-to-room");
+    return {
+      room: result.data.room,
+    };
   } catch (err) {
+    console.log(err);
     throw new Error(
-      err.message ??
+      err.response?.data?.message ??
         "A problem occurred while assigning you to the room. Please refresh"
     );
   }

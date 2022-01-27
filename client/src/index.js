@@ -12,7 +12,7 @@ import App from "./App";
 // Axios
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:5050/";
+axios.defaults.baseURL = `http://${window.location.hostname}:5050/`;
 
 let jwt = JSON.parse(localStorage.getItem("jwt"));
 
