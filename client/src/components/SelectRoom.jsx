@@ -63,7 +63,6 @@ function SelectRoom() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   function copyLink() {
-    if (typeof rootData !== "object" || !rootData.room) return;
     try {
       navigator.clipboard.writeText(
         `Hey lets chat together.` +
@@ -72,6 +71,7 @@ function SelectRoom() {
       );
       message.success("Room link copied");
     } catch (err) {
+      console.log(err);
       message.success("Could not copy room link :(");
     }
   }
@@ -79,24 +79,10 @@ function SelectRoom() {
   useEffect(async () => {
     async function initialSetup() {
       try {
-        let status = await checkForRedirect();
+        await checkForRedirect();
         // If the JWT exists there is no point in handling user creation
-        if (status) return;
-        let { redirect } = roomId
-          ? await handleInvite()
-          : await handleNewUser();
-        let JWT = JSON.parse(localStorage.getItem("jwt"));
-        let decoded = jwt_decode(JWT);
-        updateRootData({
-          jwt: JWT,
-          user: decoded._id,
-          room: decoded.roomId,
-        });
-        if (redirect) {
-          setTimeout(() => {
-            navigate(`/chat/${decoded.roomId}`, { replace: true });
-          }, 1000);
-        }
+        if (rootData.jwt) return;
+        roomId ? await handleInvite() : await handleNewUser();
       } catch (err) {
         message.error(err.message);
       } finally {
@@ -108,14 +94,13 @@ function SelectRoom() {
       if (rootData.jwt) {
         let { room } = await getRoom();
         if (room) {
-          console.log(room);
           room.members?.length > 1
             ? navigate(`/chat/${room._id}`, { replace: true })
             : dispatch({
                 type: "waiting",
-                message: "Waiting for a friend to join you ..",
+                message:
+                  "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
               });
-          return true;
         } else {
           dispatch({
             type: "room-error",
@@ -123,7 +108,6 @@ function SelectRoom() {
           });
         }
       }
-      return false;
     }
 
     async function handleInvite() {
@@ -131,9 +115,8 @@ function SelectRoom() {
         type: "invited-user-arrived",
         message: "Welcome! \n We are getting things ready for you ...",
       });
-      if (!rootData.jwt) {
-        await createUser(roomId);
-      }
+      await createUser(roomId);
+      setGlobalData();
       let data = await getRoom();
       if (data.room) {
         await assignUserToRoom();
@@ -141,50 +124,50 @@ function SelectRoom() {
           type: "invited-user-assigned",
           message: "All set! Redirecting you to your room.",
         });
+        setTimeout(() => {
+          navigate(`/chat/${roomId}`, { replace: true });
+        }, 1000);
       } else {
         dispatch({
           type: "room-error",
           message: "The room you are trying to join does no longer exist.",
         });
       }
-      return { redirect: true };
     }
 
     async function handleNewUser() {
-      let redirect = false;
-      if (rootData.jwt) {
-        dispatch({ type: "getting-room", message: "Getting your room ..." });
-        let { room } = await getRoom();
-        if (!room) {
-          dispatch({
-            type: "room-error",
-            message: "The room created for you is no longer active.",
-          });
-        } else redirect = true;
-      } else {
-        dispatch({ type: "creating-room", message: "Creating your room ..." });
-        let { room } = await createRoom();
-        dispatch({ type: "creating-user", message: "Creating your user ..." });
-        await createUser(room._id);
-        await assignUserToRoom();
-        dispatch({
-          type: "waiting",
-          message:
-            "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
-        });
-        redirect = true;
-      }
-      return { redirect };
+      dispatch({ type: "creating-room", message: "Creating your room ..." });
+      let { room } = await createRoom();
+      dispatch({ type: "creating-user", message: "Creating your user ..." });
+      await createUser(room._id);
+      setGlobalData();
+      await assignUserToRoom();
+      dispatch({
+        type: "waiting",
+        message:
+          "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
+      });
+    }
+
+    function setGlobalData() {
+      let JWT = JSON.parse(localStorage.getItem("jwt"));
+      let decoded = jwt_decode(JWT);
+      updateRootData({
+        jwt: JWT,
+        user: decoded._id,
+        room: decoded.roomId,
+      });
     }
 
     if (rootData !== null && hasPerformedSetup === false) {
+      console.log(rootData, hasPerformedSetup);
       console.log("%c InitialSetup SelectRoom", "color: #557fda");
       initialSetup();
     }
   }, [rootData, hasPerformedSetup]);
 
   useEffect(() => {
-    function setNewMemberListener() {
+    if (hasPerformedSetup && rootData !== null && rootData.jwt) {
       rootData.socket.on("new-member", (data) => {
         if (rootData.user !== data._id) {
           message.info("Redirecting to chat ...");
@@ -193,20 +176,12 @@ function SelectRoom() {
           }, 1000);
         }
       });
-      setListenersActive(true);
-    }
-    if (rootData !== null && rootData.user && listenersActive === false) {
-      setNewMemberListener();
-      console.log("%c Set new member listener SelectRoom", "color: #557fda");
-    }
-  }, [rootData, listenersActive]);
-
-  useEffect(() => {
-    if (rootData !== null && rootData.jwt && rootData.socket) {
-      console.log("%c Emitting new member SelectRoom", "color: #557fda");
       rootData.socket.emit("new-member", rootData.jwt);
     }
-  }, [rootData]);
+    return () => {
+      rootData && rootData.socket.off("new-member");
+    };
+  }, [hasPerformedSetup, rootData]);
 
   return (
     <div className={`height-full ${styles["select-room"]}`}>

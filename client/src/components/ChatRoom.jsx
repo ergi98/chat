@@ -14,20 +14,23 @@ import { sendMessage } from "../mongo/message.js";
 import { v4 } from "uuid";
 
 // Router
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-// Axios
-import { clearAxiosInstance } from "../../axios_config/axios-config";
+// ANTD
+import { message } from "antd";
 
 function ChatRoom() {
   const navigate = useNavigate();
 
   const rootData = useRoot();
 
+  const { roomId } = useParams();
+
   const sendRef = useRef(null);
   const chatRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
+  const [hasSetListeners, setHasSetListeners] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
 
   // Resize the chat depending on the input field height
@@ -38,33 +41,51 @@ function ChatRoom() {
   });
 
   useEffect(() => {
-    if (rootData !== null && !rootData?.jwt) {
-      localStorage.clear();
-      clearAxiosInstance();
-      navigate(`/`, { replace: true });
-    }
-    console.log("%c Check for redirect ChatRoom", "color: #bf55da");
-  }, []);
-
-  useEffect(() => {
-    if (!rootData) return;
-    console.log("%c new-message listener ChatRoom", "color: #bf55da");
-    rootData.socket.on("new-message", (message) => {
-      // If yours update
-      if (message.sentBy === userId) {
-        setRoomMessages((previous) =>
-          previous.map((prev) => {
-            return prev._id === message._id ? message : prev;
-          })
-        );
+    function checkForRedirect() {
+      console.log("%c Check for redirect ChatRoom", "color: #bf55da");
+      if (!roomId) {
+        let storedRoomId = rootData.room;
+        storedRoomId
+          ? navigate(`/chat/${storedRoomId}`, { replace: true })
+          : navigate(`/`, { replace: true });
       }
-      // If not yours append to end
-      else setRoomMessages((previous) => [...previous, message]);
-    });
+    }
+    rootData && checkForRedirect();
   }, [rootData]);
 
-  // TODO: Make api call to fetch last 50 messages
+  useEffect(() => {
+    function setSocketListeners() {
+      console.log("%c new-message listener ChatRoom", "color: #bf55da");
+      rootData.socket.on("new-message", (message) => {
+        // If yours update
+        if (message.sentBy === rootData.user) {
+          setRoomMessages((previous) =>
+            previous.map((prev) => {
+              return prev._id === message._id ? message : prev;
+            })
+          );
+        }
+        // If not yours append to end
+        else setRoomMessages((previous) => [...previous, message]);
+      });
+      rootData.socket.on("new-member", (data) => {
+        if (rootData.user !== data._id) {
+          message.info("New user joined");
+        }
+      });
+      setHasSetListeners(true);
+    }
+    if (rootData !== null && !hasSetListeners) setSocketListeners();
 
+    return () => {
+      if (rootData !== null && hasSetListeners) {
+        rootData.socket.off("new-message");
+        rootData.socket.off("new-member");
+      }
+    };
+  }, [rootData, hasSetListeners]);
+
+  // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
     try {
       setRoomMessages((prev) => [
