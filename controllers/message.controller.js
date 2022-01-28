@@ -4,12 +4,12 @@ import MessageSchema from "../schemas/message.schema.js";
 export default class MessageController {
   static async sendMessage(req, res) {
     try {
-      const result = await MessageSchema.create({
+      const message = await MessageSchema.create({
         text: req.body.text,
         sentBy: req.headers.user,
         roomId: req.headers.room,
       });
-      console.log(result);
+      res.status(200).send({ message });
     } catch (err) {
       console.log(err);
       res

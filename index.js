@@ -15,6 +15,8 @@ import mongoose from "mongoose";
 // Routes
 import userRouter from "./routes/user.routes.js";
 import roomRouter from "./routes/room.routes.js";
+import messageRouter from "./routes/message.routes.js";
+
 import { validateToken, decodeToken } from "./services/token.service.js";
 
 const app = express();
@@ -68,6 +70,7 @@ app.use("/", async (req, res, next) => {
 });
 app.use("/", userRouter);
 app.use("/", roomRouter);
+app.use("/", messageRouter);
 
 io.on("connection", (socket) => {
   socket.on("new-member", (jwt) => {
@@ -80,9 +83,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
-  socket.on("send-message", (message) => {
-    message.sentAt = new Date();
-    io.emit("message", message);
+  socket.on("sent-message", (message) => {
+    io.emit("new-message", message);
   });
 });
 

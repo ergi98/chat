@@ -57,6 +57,7 @@ function ChatRoom() {
     function setSocketListeners() {
       console.log("%c new-message listener ChatRoom", "color: #bf55da");
       rootData.socket.on("new-message", (message) => {
+        console.log("NEW MESSAGE BITCHES");
         // If yours update
         if (message.sentBy === rootData.user) {
           setRoomMessages((previous) =>
@@ -87,12 +88,19 @@ function ChatRoom() {
 
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
+    let tempMessageId = v4();
     try {
       setRoomMessages((prev) => [
         ...prev,
-        { _id: v4(), text, sentBy: rootData.user },
+        { _id: tempMessageId, text, sentBy: rootData.user },
       ]);
-      let result = await sendMessage(text);
+      let { message } = await sendMessage(text);
+      setRoomMessages((previous) =>
+        previous.map((prev) => {
+          return prev._id === tempMessageId ? message : prev;
+        })
+      );
+      message && rootData.socket.emit("sent-message", message);
     } catch (err) {
       // TODO: Mark message as unsent to retry again
     }

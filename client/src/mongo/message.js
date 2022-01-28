@@ -2,7 +2,10 @@ import { AxiosInstance } from "../../axios_config/axios-config";
 
 export async function sendMessage(text) {
   try {
-    await AxiosInstance.post("/send-message", text);
+    let result = await AxiosInstance.post("/send-message", { text });
+    return {
+      message: result.data.message,
+    };
   } catch (err) {
     console.log(err);
     throw new Error(
