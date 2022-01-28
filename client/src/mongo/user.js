@@ -1,13 +1,13 @@
-import axios from "axios";
+import {
+  AxiosInstance,
+  setTokenInterceptor,
+} from "../../axios_config/axios-config";
 
 export async function create(roomId) {
   try {
-    let result = await axios.post("/create-user", { roomId });
+    let result = await AxiosInstance.post("/create-user", { roomId });
     localStorage.setItem("jwt", JSON.stringify(result.data.token));
-    axios.interceptors.request.use((config) => {
-      config.headers.authorization = `Bearer ${result.data.token}`;
-      return config;
-    });
+    setTokenInterceptor(result.data.token);
     return {
       user: result.data.user,
     };
@@ -22,7 +22,7 @@ export async function create(roomId) {
 
 export async function getUser() {
   try {
-    let result = await axios.get("/get-user");
+    let result = await AxiosInstance.get("/get-user");
     return {
       user: result.data.user,
     };
@@ -37,7 +37,7 @@ export async function getUser() {
 
 export async function checkIfUserBelongsToRoom() {
   try {
-    let result = await axios.post("/check-if-belongs-to-room");
+    let result = await AxiosInstance.post("/check-if-belongs-to-room");
     return {
       belongs: result.data.belongs,
     };

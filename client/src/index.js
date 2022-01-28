@@ -10,23 +10,13 @@ import "./styles/index.css";
 import App from "./App";
 
 // Axios
-import axios from "axios";
+import { setTokenInterceptor } from "../axios_config/axios-config";
 
-axios.defaults.baseURL = `http://${window.location.hostname}:5050/`;
-
-let jwt = JSON.parse(localStorage.getItem("jwt"));
-
-if (jwt) {
-  axios.interceptors.request.use((config) => {
-    config.headers.authorization = `Bearer ${jwt}`;
-    return config;
-  });
-} else {
-  axios.interceptors.request.use((config) => {
-    config.headers.authorization = "";
-    return config;
-  });
-}
+(function () {
+  console.log("%c IndexJS anonymous function", "color: #55dab2");
+  let jwt = JSON.parse(localStorage.getItem("jwt"));
+  setTokenInterceptor(jwt);
+})();
 
 ConfigProvider.config({
   theme: {

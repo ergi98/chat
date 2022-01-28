@@ -1,8 +1,8 @@
-import axios from "axios";
+import { AxiosInstance } from "../../axios_config/axios-config";
 
 export async function create() {
   try {
-    let result = await axios.post("/create-room");
+    let result = await AxiosInstance.post("/create-room");
     return {
       room: result.data.room,
     };
@@ -17,7 +17,7 @@ export async function create() {
 
 export async function getRoom() {
   try {
-    let result = await axios.get("/get-room");
+    let result = await AxiosInstance.get("/get-room");
     return {
       room: result.data.roomData,
     };
@@ -32,7 +32,7 @@ export async function getRoom() {
 
 export async function assignUserToRoom() {
   try {
-    let result = await axios.post("/assign-to-room");
+    let result = await AxiosInstance.post("/assign-to-room");
     return {
       room: result.data.room,
     };

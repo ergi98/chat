@@ -37,14 +37,17 @@ export function ContextProvider({ children }) {
         socket: socket,
       });
     }
+    console.log("%c Use effect on RootContext", "color: #bada55");
   }, []);
 
   useEffect(() => {
     socket.on("connect", () => {
-      if (rootContext && rootContext.jwt)
+      if (rootContext !== null && rootContext.jwt) {
+        console.log("%c Emitting new member RootContext", "color: #bada55");
         socket.emit("new-member", rootContext.jwt);
+      }
     });
-  }, []);
+  }, [rootContext]);
 
   function updateRootContext(data) {
     setRootContext((previous) => {

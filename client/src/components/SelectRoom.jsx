@@ -76,30 +76,9 @@ function SelectRoom() {
     }
   }
 
-  useEffect(() => {
-    function setNewMemberListener() {
-      rootData.socket.on("new-member", (data) => {
-        if (rootData.user !== data._id) {
-          message.info("Redirecting to chat ...");
-          setTimeout(() => {
-            navigate(`/chat/${data.roomId}`, { replace: true });
-          }, 1000);
-        }
-      });
-      setListenersActive(true);
-    }
-    if (rootData !== null && rootData.user && listenersActive === false)
-      setNewMemberListener();
-  }, [rootData, listenersActive]);
-
-  useEffect(() => {
-    if (rootData !== null && rootData.jwt && rootData.socket) {
-      rootData.socket.emit("new-member", rootData.jwt);
-    }
-  }, [rootData]);
-
   useEffect(async () => {
     async function initialSetup() {
+      console.log({ rootData });
       try {
         let status = await checkForRedirect();
         // If the JWT exists there is no point in handling user creation
@@ -182,9 +161,6 @@ function SelectRoom() {
             message: "The room created for you is no longer active.",
           });
         }
-        // else {
-        //   dispatch();
-        // }
       } else {
         dispatch({ type: "creating-room", message: "Creating your room ..." });
         let { room } = await createRoom();
@@ -200,8 +176,36 @@ function SelectRoom() {
       return { redirect: false };
     }
 
-    if (rootData !== null && hasPerformedSetup === false) initialSetup();
+    if (rootData !== null && hasPerformedSetup === false) {
+      console.log("%c InitialSetup SelectRoom", "color: #557fda");
+      initialSetup();
+    }
   }, [rootData, hasPerformedSetup]);
+
+  useEffect(() => {
+    function setNewMemberListener() {
+      rootData.socket.on("new-member", (data) => {
+        if (rootData.user !== data._id) {
+          message.info("Redirecting to chat ...");
+          setTimeout(() => {
+            navigate(`/chat/${data.roomId}`, { replace: true });
+          }, 1000);
+        }
+      });
+      setListenersActive(true);
+    }
+    if (rootData !== null && rootData.user && listenersActive === false) {
+      setNewMemberListener();
+      console.log("%c Set new member listener SelectRoom", "color: #557fda");
+    }
+  }, [rootData, listenersActive]);
+
+  useEffect(() => {
+    if (rootData !== null && rootData.jwt && rootData.socket) {
+      console.log("%c Emitting new member SelectRoom", "color: #557fda");
+      rootData.socket.emit("new-member", rootData.jwt);
+    }
+  }, [rootData]);
 
   return (
     <div className={`height-full ${styles["select-room"]}`}>

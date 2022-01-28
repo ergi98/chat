@@ -1,8 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 
-// Axios
-import axios from "axios";
-
 // Components
 import Chat from "./Chat";
 import Send from "./Send";
@@ -18,6 +15,9 @@ import { v4 } from "uuid";
 
 // Router
 import { useNavigate } from "react-router-dom";
+
+// Axios
+import { clearAxiosInstance } from "../../axios_config/axios-config";
 
 function ChatRoom() {
   const navigate = useNavigate();
@@ -40,16 +40,15 @@ function ChatRoom() {
   useEffect(() => {
     if (!rootData?.jwt) {
       localStorage.clear();
-      axios.interceptors.request.use((config) => {
-        config.headers.authorization = "";
-        return config;
-      });
+      clearAxiosInstance();
       navigate(`/`, { replace: true });
     }
+    console.log("%c Check for redirect ChatRoom", "color: #bf55da");
   }, []);
 
   useEffect(() => {
     if (!rootData) return;
+    console.log("%c new-message listener ChatRoom", "color: #bf55da");
     rootData.socket.on("new-message", (message) => {
       // If yours update
       if (message.sentBy === userId) {
@@ -80,6 +79,7 @@ function ChatRoom() {
 
   useEffect(() => {
     if (sendRef && sendRef.current) {
+      console.log("%c Resize observer ChatRoom", "color: #bf55da");
       observer.observe(sendRef.current);
     }
     return () => {

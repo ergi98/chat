@@ -1,8 +1,8 @@
-import axios from "axios";
+import { AxiosInstance } from "../../axios_config/axios-config";
 
 export async function sendMessage(text) {
   try {
-    await axios.post("/send-message", text);
+    await AxiosInstance.post("/send-message", text);
   } catch (err) {
     console.log(err);
     throw new Error(
@@ -15,7 +15,7 @@ export async function sendMessage(text) {
 export async function getMessages() {
   try {
     // TODO: Kinda hard
-    let result = await axios.get("/get-messages");
+    let result = await AxiosInstance.get("/get-messages");
     console.log(result);
     return {
       messages: result.data.messages,
