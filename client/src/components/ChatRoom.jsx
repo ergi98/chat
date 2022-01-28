@@ -38,7 +38,7 @@ function ChatRoom() {
   });
 
   useEffect(() => {
-    if (!rootData?.jwt) {
+    if (rootData !== null && !rootData?.jwt) {
       localStorage.clear();
       clearAxiosInstance();
       navigate(`/`, { replace: true });

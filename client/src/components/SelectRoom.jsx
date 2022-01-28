@@ -78,7 +78,6 @@ function SelectRoom() {
 
   useEffect(async () => {
     async function initialSetup() {
-      console.log({ rootData });
       try {
         let status = await checkForRedirect();
         // If the JWT exists there is no point in handling user creation
@@ -88,7 +87,6 @@ function SelectRoom() {
           : await handleNewUser();
         let JWT = JSON.parse(localStorage.getItem("jwt"));
         let decoded = jwt_decode(JWT);
-
         updateRootData({
           jwt: JWT,
           user: decoded._id,
@@ -96,7 +94,7 @@ function SelectRoom() {
         });
         if (redirect) {
           setTimeout(() => {
-            navigate(`/chat/${data.room._id}`, { replace: true });
+            navigate(`/chat/${decoded.roomId}`, { replace: true });
           }, 1000);
         }
       } catch (err) {
@@ -110,6 +108,7 @@ function SelectRoom() {
       if (rootData.jwt) {
         let { room } = await getRoom();
         if (room) {
+          console.log(room);
           room.members?.length > 1
             ? navigate(`/chat/${room._id}`, { replace: true })
             : dispatch({
@@ -152,15 +151,16 @@ function SelectRoom() {
     }
 
     async function handleNewUser() {
+      let redirect = false;
       if (rootData.jwt) {
         dispatch({ type: "getting-room", message: "Getting your room ..." });
         let { room } = await getRoom();
-        if (room) {
+        if (!room) {
           dispatch({
             type: "room-error",
             message: "The room created for you is no longer active.",
           });
-        }
+        } else redirect = true;
       } else {
         dispatch({ type: "creating-room", message: "Creating your room ..." });
         let { room } = await createRoom();
@@ -172,8 +172,9 @@ function SelectRoom() {
           message:
             "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
         });
+        redirect = true;
       }
-      return { redirect: false };
+      return { redirect };
     }
 
     if (rootData !== null && hasPerformedSetup === false) {
