@@ -1,13 +1,29 @@
 import React, { useRef, useEffect, useState } from "react";
 
+// Axios
+import axios from "axios";
+
 // Components
 import Chat from "./Chat";
 import Send from "./Send";
 
+// Context
+import { useRoot } from "../RootContext";
+
 // Api
-import { sendMessage, getMessages } from "../mongo/message.js";
+import { sendMessage } from "../mongo/message.js";
+
+// UUID
+import { v4 } from "uuid";
+
+// Router
+import { useNavigate } from "react-router-dom";
 
 function ChatRoom() {
+  const navigate = useNavigate();
+
+  const rootData = useRoot();
+
   const sendRef = useRef(null);
   const chatRef = useRef(null);
 
@@ -21,12 +37,45 @@ function ChatRoom() {
     }
   });
 
+  useEffect(() => {
+    if (!rootData?.jwt) {
+      localStorage.clear();
+      axios.interceptors.request.use((config) => {
+        config.headers.authorization = "";
+        return config;
+      });
+      navigate(`/`, { replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!rootData) return;
+    rootData.socket.on("new-message", (message) => {
+      // If yours update
+      if (message.sentBy === userId) {
+        setRoomMessages((previous) =>
+          previous.map((prev) => {
+            return prev._id === message._id ? message : prev;
+          })
+        );
+      }
+      // If not yours append to end
+      else setRoomMessages((previous) => [...previous, message]);
+    });
+  }, [rootData]);
+
   // TODO: Make api call to fetch last 50 messages
 
   async function addNewMessage(text) {
     try {
-      let result = await Message;
-    } catch (err) {}
+      setRoomMessages((prev) => [
+        ...prev,
+        { _id: v4(), text, sentBy: rootData.user },
+      ]);
+      let result = await sendMessage(text);
+    } catch (err) {
+      // TODO: Mark message as unsent to retry again
+    }
   }
 
   useEffect(() => {

@@ -1,13 +1,14 @@
-import React, { useContext } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./message.module.css";
+
+// Context
+import { useRoot } from "../RootContext";
 
 // Animation
 import { motion } from "framer-motion";
 
 function Message({ message }) {
-  let user = { socketId: 1 };
-
-  // TODO: store the token in context
+  const rootData = useRoot();
 
   function displayDate(date) {
     let localDate = new Date(date);
@@ -19,7 +20,7 @@ function Message({ message }) {
 
   let variants = {
     initial: {
-      x: message.sentBy === user.socketId ? "50%" : "-50%",
+      x: message.sentBy === rootData.user ? "50%" : "-50%",
       rotate: "20deg",
     },
     final: {
@@ -34,7 +35,7 @@ function Message({ message }) {
       animate="final"
       variants={variants}
       className={`${styles.message} ${
-        message.sentBy === user.socketId ? styles.mine : styles.theirs
+        message.sentBy === rootData.user ? styles.mine : styles.theirs
       }`}
     >
       <div className={styles.content}>

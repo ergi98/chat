@@ -5,28 +5,16 @@ import NotFound from "./components/NotFound";
 import ChatRoom from "./components/ChatRoom";
 import SelectRoom from "./components/SelectRoom";
 
-// Context
-import { SocketContext } from "./SocketContext.js";
+// Context Provider
+import { ContextProvider } from "./RootContext";
 
 // Router
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Socket
-import io from "socket.io-client";
-
-const socket = io.connect(`http://${window.location.hostname}:5050`);
-
 function App() {
-  useEffect(() => {
-    let JWT = JSON.parse(localStorage.getItem("jwt"));
-    socket.on("connect", () => {
-      JWT && socket.emit("new-member", JWT);
-    });
-    return () => {};
-  }, []);
   return (
     <BrowserRouter>
-      <SocketContext.Provider value={socket}>
+      <ContextProvider>
         <Routes>
           <Route path="/" element={<SelectRoom />}>
             <Route path=":roomId" element={<SelectRoom />} />
@@ -36,7 +24,7 @@ function App() {
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </SocketContext.Provider>
+      </ContextProvider>
     </BrowserRouter>
   );
 }

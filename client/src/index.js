@@ -21,6 +21,11 @@ if (jwt) {
     config.headers.authorization = `Bearer ${jwt}`;
     return config;
   });
+} else {
+  axios.interceptors.request.use((config) => {
+    config.headers.authorization = "";
+    return config;
+  });
 }
 
 ConfigProvider.config({

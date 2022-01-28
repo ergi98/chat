@@ -11,10 +11,25 @@ const messageSchema = new mongoose.Schema({
     ref: "users",
     required: true,
   },
+  roomId: {
+    type: "ObjectId",
+    ref: "rooms",
+    required: true,
+  },
   text: {
     type: String,
     required: true,
     trim: true,
+  },
+  resentAt: {
+    type: Date,
+    required: false,
+  },
+  status: {
+    type: String,
+    enum: ["sending", "sent"],
+    default: "sending",
+    required: true,
   },
 });
 

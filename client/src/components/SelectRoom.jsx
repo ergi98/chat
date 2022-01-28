@@ -1,8 +1,5 @@
-import React, { useContext, useEffect, useReducer } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import styles from "./room.module.css";
-
-// JWT
-import jwt_decode from "jwt-decode";
 
 import {
   create as createRoom,
@@ -18,7 +15,10 @@ import { Button, message, Spin } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 
 // Context
-import { SocketContext } from "../SocketContext.js";
+import { useRoot, useRootUpdate } from "../RootContext.js";
+
+// JWT
+import jwt_decode from "jwt-decode";
 
 const initialState = {
   loading: true,
@@ -53,67 +53,82 @@ function reducer(state, action) {
 
 function SelectRoom() {
   const navigate = useNavigate();
-
   const { roomId } = useParams();
 
-  const socket = useContext(SocketContext);
+  const rootData = useRoot();
+  const updateRootData = useRootUpdate();
 
+  const [listenersActive, setListenersActive] = useState(false);
+  const [hasPerformedSetup, setHasPerformedSetup] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
 
   function copyLink() {
-    let JWT = JSON.parse(localStorage.getItem("jwt"));
-    if (!JWT) return;
-    let decoded = jwt_decode(JWT);
-    navigator.clipboard.writeText(
-      `Hey lets chat together.` +
-        `Click the link below to join me! \n` +
-        `http://${window.location.host}/${decoded.roomId}`
-    );
-    message.success("Room link copied");
+    if (typeof rootData !== "object" || !rootData.room) return;
+    try {
+      navigator.clipboard.writeText(
+        `Hey lets chat together.` +
+          `Click the link below to join me! \n` +
+          `http://${window.location.host}/${rootData.room}`
+      );
+      message.success("Room link copied");
+    } catch (err) {
+      message.success("Could not copy room link :(");
+    }
   }
 
   useEffect(() => {
-    const JWT = JSON.parse(localStorage.getItem("jwt"));
-    JWT && setNewMemberListener();
-  }, []);
+    function setNewMemberListener() {
+      rootData.socket.on("new-member", (data) => {
+        if (rootData.user !== data._id) {
+          message.info("Redirecting to chat ...");
+          setTimeout(() => {
+            navigate(`/chat/${data.roomId}`, { replace: true });
+          }, 1000);
+        }
+      });
+      setListenersActive(true);
+    }
+    if (rootData !== null && rootData.user && listenersActive === false)
+      setNewMemberListener();
+  }, [rootData, listenersActive]);
 
-  function setNewMemberListener() {
-    socket.on("new-member", (data) => {
-      let JWT = JSON.parse(localStorage.getItem("jwt"));
-      let decoded = jwt_decode(JWT);
-      if (decoded._id !== data._id) {
-        message.info("Redirecting to chat ...");
-        setTimeout(() => {
-          navigate(`/chat/${data.roomId}`, { replace: true });
-        }, 1000);
-      }
-    });
-  }
+  useEffect(() => {
+    if (rootData !== null && rootData.jwt && rootData.socket) {
+      rootData.socket.emit("new-member", rootData.jwt);
+    }
+  }, [rootData]);
 
   useEffect(async () => {
     async function initialSetup() {
       try {
-        const currentToken = JSON.parse(localStorage.getItem("jwt"));
-
-        let status = await checkForRedirect(currentToken);
+        let status = await checkForRedirect();
         // If the JWT exists there is no point in handling user creation
         if (status) return;
+        let { redirect } = roomId
+          ? await handleInvite()
+          : await handleNewUser();
+        let JWT = JSON.parse(localStorage.getItem("jwt"));
+        let decoded = jwt_decode(JWT);
 
-        roomId
-          ? await handleInvite(currentToken)
-          : await handleNewUser(currentToken);
-
-        const newToken = JSON.parse(localStorage.getItem("jwt"));
-
-        socket.emit("new-member", newToken);
-        setNewMemberListener();
+        updateRootData({
+          jwt: JWT,
+          user: decoded._id,
+          room: decoded.roomId,
+        });
+        if (redirect) {
+          setTimeout(() => {
+            navigate(`/chat/${data.room._id}`, { replace: true });
+          }, 1000);
+        }
       } catch (err) {
         message.error(err.message);
+      } finally {
+        setHasPerformedSetup(true);
       }
     }
 
-    async function checkForRedirect(token) {
-      if (token) {
+    async function checkForRedirect() {
+      if (rootData.jwt) {
         let { room } = await getRoom();
         if (room) {
           room.members?.length > 1
@@ -133,12 +148,12 @@ function SelectRoom() {
       return false;
     }
 
-    async function handleInvite(token) {
+    async function handleInvite() {
       dispatch({
         type: "invited-user-arrived",
         message: "Welcome! \n We are getting things ready for you ...",
       });
-      if (!token) {
+      if (!rootData.jwt) {
         await createUser(roomId);
       }
       let data = await getRoom();
@@ -148,19 +163,17 @@ function SelectRoom() {
           type: "invited-user-assigned",
           message: "All set! Redirecting you to your room.",
         });
-        setTimeout(() => {
-          navigate(`/chat/${data.room._id}`, { replace: true });
-        }, 1000);
       } else {
         dispatch({
           type: "room-error",
           message: "The room you are trying to join does no longer exist.",
         });
       }
+      return { redirect: true };
     }
 
-    async function handleNewUser(token) {
-      if (token) {
+    async function handleNewUser() {
+      if (rootData.jwt) {
         dispatch({ type: "getting-room", message: "Getting your room ..." });
         let { room } = await getRoom();
         if (room) {
@@ -168,9 +181,10 @@ function SelectRoom() {
             type: "room-error",
             message: "The room created for you is no longer active.",
           });
-        } else {
-          dispatch();
         }
+        // else {
+        //   dispatch();
+        // }
       } else {
         dispatch({ type: "creating-room", message: "Creating your room ..." });
         let { room } = await createRoom();
@@ -183,10 +197,11 @@ function SelectRoom() {
             "Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.",
         });
       }
+      return { redirect: false };
     }
 
-    initialSetup();
-  }, []);
+    if (rootData !== null && hasPerformedSetup === false) initialSetup();
+  }, [rootData, hasPerformedSetup]);
 
   return (
     <div className={`height-full ${styles["select-room"]}`}>
