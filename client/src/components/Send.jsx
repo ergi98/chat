@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "./send.module.css";
 
 import { Input, Button } from "antd";
-import { SendOutlined } from "@ant-design/icons";
+import { SendOutlined, AudioOutlined, CameraOutlined } from "@ant-design/icons";
 import GlassDiv from "./GlassDiv";
 
 const { TextArea } = Input;
@@ -26,8 +26,24 @@ const Send = React.forwardRef((props, ref) => {
    */
 
   return (
-    <GlassDiv ref={ref} className={styles.send}>
-      <form onSubmit={submitMessage}>
+    <GlassDiv className={styles.container}>
+      <form ref={ref} onSubmit={submitMessage} className={styles.form}>
+        <Button
+          className={styles["action-button"]}
+          onClick={submitMessage}
+          icon={<CameraOutlined />}
+          shape="circle"
+          size="large"
+          type="text"
+        />
+        <Button
+          className={styles["action-button"]}
+          onClick={submitMessage}
+          icon={<AudioOutlined />}
+          shape="circle"
+          size="large"
+          type="text"
+        />
         <div className={styles["input-container"]}>
           <TextArea
             value={userInput}
@@ -39,10 +55,10 @@ const Send = React.forwardRef((props, ref) => {
             placeholder="Write something..."
           />
           <Button
-            className={styles["submit-button"]}
             onClick={submitMessage}
             icon={<SendOutlined />}
             shape="circle"
+            size="large"
             type="primary"
           />
         </div>

@@ -1,7 +1,7 @@
 .chat {
   width: 100vw;
   height: 100vh;
-  padding: calc(55px + 14px) 14px;
+  padding: 4px 14px calc(55px + 80px + 4px + 14px + 8px) 14px;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;

@@ -38,7 +38,7 @@ function ChatRoom() {
   let observer = new ResizeObserver((entries) => {
     for (let entry of entries) {
       chatRef.current.style.paddingBottom = `${
-        entry.target.offsetHeight + 14
+        entry.target.offsetHeight + 4 + 14 + 55 + 8
       }px`;
     }
   });

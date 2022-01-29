@@ -1,49 +1,49 @@
-.send {
-  padding: 12px 8px;
-  background: #1a1a1a;
-  border-radius: 10px 10px 0 0;
+.container {
   width: 100vw !important;
+  padding: 12px 14px;
   position: sticky;
   bottom: 0;
 }
 
-.input-container {
+.form {
+  display: flex;
   position: relative;
-  border-radius: 10px;
-  background-color: #242424;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.action-button {
+  color: #f3f3f3;
+}
+
+.action-button:hover {
+  color: #f3f3f3;
+}
+
+.input-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+  border: none;
+
+  padding: 8px;
+
+  position: relative;
+  background-color: #272727;
 }
 
 .input-field {
   outline: none;
-  width: calc(100% - 58px);
-  padding: 15px 0px 15px 10px;
-
-  overflow-x: auto;
+  overflow-x: none;
+  overflow-y: auto;
   overscroll-behavior: contain;
-  border: none;
 
-  background-color: transparent;
-
-  color: #eeeeee;
-  caret-color: #eeeeee;
+  color: #f3f3f3;
+  caret-color: #f3f3f3;
   font-weight: normal;
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.55px;
   font-family: "Helvetica" !important;
-}
-
-.submit-button {
-  position: absolute;
-  right: 12px;
-  bottom: 50%;
-  transform: translateY(50%);
-  border: 1px solid #533deb !important;
-  color: #533deb;
-  background: transparent;
-}
-
-.placeholder {
-  opacity: 0.5;
-  user-select: none;
 }

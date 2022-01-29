@@ -1,8 +1,12 @@
 import React from "react";
 import styles from "./glass.module.css";
 
-function GlassDiv({ children }) {
-  return <div className={styles["glass-div"]}>{children}</div>;
+function GlassDiv({ children, className }) {
+  return (
+    <div className={`${className ?? ""} ${styles["glass-div"]}`}>
+      {children}
+    </div>
+  );
 }
 
 export default GlassDiv;
