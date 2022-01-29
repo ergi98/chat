@@ -27,8 +27,8 @@ const messageSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["sending", "sent"],
-    default: "sending",
+    enum: ["sending", "sent", "error"],
+    default: "sent",
     required: true,
   },
 });

@@ -3,6 +3,7 @@ import styles from "./send.module.css";
 
 import { Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
+import GlassDiv from "./GlassDiv";
 
 const { TextArea } = Input;
 
@@ -16,8 +17,16 @@ const Send = React.forwardRef((props, ref) => {
     setUserInput(null);
   }
 
+  /**
+   * TODO:
+   *  1. Implement forwards ref in glassDiv component
+   *  2. Make GlassDiv accept class props
+   *
+   *
+   */
+
   return (
-    <div ref={ref} className={styles.send}>
+    <GlassDiv ref={ref} className={styles.send}>
       <form onSubmit={submitMessage}>
         <div className={styles["input-container"]}>
           <TextArea
@@ -38,7 +47,7 @@ const Send = React.forwardRef((props, ref) => {
           />
         </div>
       </form>
-    </div>
+    </GlassDiv>
   );
 });
 

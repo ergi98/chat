@@ -1,0 +1,19 @@
+.message-menu {
+  border: none;
+  color: #f3f3f3;
+  min-width: 180px;
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+.menu-bg {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(1px);
+  border-radius: 10px;
+  position: absolute;
+  background: #27232333;
+  backdrop-filter: blur(70px);
+}

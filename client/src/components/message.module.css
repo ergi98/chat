@@ -1,22 +1,23 @@
 .message {
+  position: relative;
+
   max-width: 60vw;
-  width: fit-content;
   min-width: 90px;
-  padding: 10px;
-  border-radius: 8px;
+  width: fit-content;
+  
+  padding: 8px 14px;
+  border-radius: 12px;
   font-size: 16px;
   letter-spacing: 0.5px;
   color: #c5c5c5;
-  position: relative;
 }
 
 .message:not(:last-child) {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .sending-text {
   font-size: 10px;
-  color: rgb(109, 109, 109);
   margin-right: 6px;
 }
 
@@ -44,38 +45,8 @@
   padding-right: 3px;
 }
 
-.mine:before {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-bottom: 17px solid #533deb;
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  bottom: 5px;
-  right: -10px;
-}
-
-.theirs:before {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-bottom: 17px solid #242424;
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  bottom: 5px;
-  left: -10px;
-}
-
 .check-svg {
-  width: 14px;
-  height: 14px;
-}
-
-.sent-at {
-  font-size: 11px;
-  margin-right: 5px;
+  transform: scale(0.7);
 }
 
 .theirs .check-svg,
@@ -95,16 +66,17 @@
   margin-top: 6px;
 }
 
-.sending-icon {
-  transform-origin: center;
-  animation: rotate 2s linear 0.5s infinite;
+.resend-button {
+  position: absolute;
+  left: -55%;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-@keyframes rotate {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.resend-icon {
+  transform: scale(1.1);
+}
+
+.error {
+  background-color: #ff7874 !important;
 }

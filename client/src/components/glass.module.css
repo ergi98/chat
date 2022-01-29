@@ -1,0 +1,6 @@
+.glass-div {
+  z-index: 999;
+  min-width: 100%;
+  /* filter: blur(1px); */
+  backdrop-filter: blur(70px);
+}

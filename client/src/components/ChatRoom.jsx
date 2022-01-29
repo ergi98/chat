@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 
 // Components
-import Chat from "./Chat";
 import Send from "./Send";
+import Chat from "./Chat";
+import TopRibbon from "./TopRibbon";
 
 // Context
 import { useRoot } from "../RootContext";
@@ -36,7 +37,9 @@ function ChatRoom() {
   // Resize the chat depending on the input field height
   let observer = new ResizeObserver((entries) => {
     for (let entry of entries) {
-      chatRef.current.style.height = `calc(100vh - ${entry.target.offsetHeight}px)`;
+      chatRef.current.style.paddingBottom = `${
+        entry.target.offsetHeight + 14
+      }px`;
     }
   });
 
@@ -88,13 +91,17 @@ function ChatRoom() {
 
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
-    let tempMessageId = v4();
+    let tempMessageId = v4(),
+      message = {
+        _id: tempMessageId,
+        text,
+        sentBy: rootData.user,
+        status: "sending",
+      };
     try {
-      setRoomMessages((prev) => [
-        ...prev,
-        { _id: tempMessageId, text, sentBy: rootData.user },
-      ]);
-      let { message } = await sendMessage(text);
+      setRoomMessages((prev) => [...prev, message]);
+      let data = await sendMessage(text);
+      message = data.message;
       setRoomMessages((previous) =>
         previous.map((prev) => {
           return prev._id === tempMessageId ? message : prev;
@@ -102,7 +109,15 @@ function ChatRoom() {
       );
       message && rootData.socket.emit("sent-message", message);
     } catch (err) {
+      console.log("message with error");
       // TODO: Mark message as unsent to retry again
+      setRoomMessages((previous) =>
+        previous.map((prev) => {
+          return prev._id === tempMessageId
+            ? { ...message, status: "error" }
+            : prev;
+        })
+      );
     }
   }
 
@@ -119,6 +134,7 @@ function ChatRoom() {
 
   return (
     <div style={{ overflow: "none" }}>
+      <TopRibbon />
       <Chat ref={chatRef} messages={roomMessages} />
       <Send ref={sendRef} addMessage={addNewMessage} />
     </div>
