@@ -13,7 +13,7 @@ function TopRibbon() {
   return (
     <GlassDiv
       styles={{
-        position: "absolute",
+        position: "sticky",
         height: "55px",
         top: 0,
         left: 0,

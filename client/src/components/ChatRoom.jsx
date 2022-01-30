@@ -60,7 +60,6 @@ function ChatRoom() {
     function setSocketListeners() {
       console.log("%c new-message listener ChatRoom", "color: #bf55da");
       rootData.socket.on("new-message", (message) => {
-        console.log("NEW MESSAGE BITCHES");
         // If yours update
         if (message.sentBy === rootData.user) {
           setRoomMessages((previous) =>
@@ -71,6 +70,7 @@ function ChatRoom() {
         }
         // If not yours append to end
         else setRoomMessages((previous) => [...previous, message]);
+        scrollToBottom();
       });
       rootData.socket.on("new-member", (data) => {
         if (rootData.user !== data._id) {
@@ -79,6 +79,13 @@ function ChatRoom() {
       });
       setHasSetListeners(true);
     }
+
+    function scrollToBottom() {
+      if (chatRef && chatRef?.current) {
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      }
+    }
+    
     if (rootData !== null && !hasSetListeners) setSocketListeners();
 
     return () => {

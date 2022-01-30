@@ -4,27 +4,20 @@
   max-width: 60vw;
   min-width: 90px;
   width: fit-content;
-  
-  padding: 8px 14px;
   border-radius: 12px;
   font-size: 16px;
   letter-spacing: 0.5px;
   color: #c5c5c5;
+
+  padding: 8px;
 }
 
 .message:not(:last-child) {
   margin-bottom: 14px;
 }
 
-.sending-text {
-  font-size: 10px;
-  margin-right: 6px;
-}
-
-.sending-div {
-  display: flex;
-  align-items: center;
-  margin-top: 8px;
+.content {
+  word-break: break-all;
 }
 
 .mine {
@@ -37,16 +30,8 @@
   background-color: #272727;
 }
 
-.theirs .content {
-  padding-left: 3px;
-}
-
-.mine .content {
-  padding-right: 3px;
-}
-
 .check-svg {
-  transform: scale(0.7);
+  transform: scale(0.8);
 }
 
 .theirs .check-svg,
@@ -59,11 +44,16 @@
   color: #b2b2b2;
 }
 
+.sent-at {
+  padding-right: 4px;
+}
+
 .bottom-row {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-top: 6px;
+  margin-top: 8px;
+  font-size: 10px;
 }
 
 .resend-button {

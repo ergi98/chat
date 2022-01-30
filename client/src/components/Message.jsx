@@ -57,10 +57,7 @@ function Message({ message }) {
           {message.status === "sent" ? (
             <CheckOutlined className={styles["check-svg"]} />
           ) : message.status === "sending" ? (
-            <div className={styles["sending-div"]}>
-              <span className={styles["sending-text"]}>Sending</span>
-              <LoadingOutlined />
-            </div>
+            <LoadingOutlined />
           ) : null}
         </div>
         {/* Resend icon */}
