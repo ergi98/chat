@@ -11,23 +11,14 @@ import GlassDiv from "./GlassDiv";
 
 function TopRibbon() {
   return (
-    <GlassDiv
-      styles={{
-        position: "sticky",
-        height: "55px",
-        top: 0,
-        left: 0,
-      }}
-    >
-      <div className={styles.top}>
-        <div>Chat Room</div>
-        <Button
-          type="text"
-          size="large"
-          shape="rounded"
-          icon={<MoreOutlined className={styles["more-icon"]} />}
-        />
-      </div>
+    <GlassDiv className={styles.top}>
+      <div>Chat Room</div>
+      <Button
+        type="text"
+        size="large"
+        shape="rounded"
+        icon={<MoreOutlined className={styles["more-icon"]} />}
+      />
     </GlassDiv>
   );
 }

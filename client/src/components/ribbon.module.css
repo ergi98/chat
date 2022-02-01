@@ -1,9 +1,7 @@
 .top {
-  width: 100%;
   height: 55px;
   display: flex;
   color: #f3f3f3;
-  position: relative;
   align-items: center;
   justify-content: space-between;
   padding: 0px 14px;

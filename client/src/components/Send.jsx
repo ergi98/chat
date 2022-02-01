@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "./send.module.css";
 
-import { Input, Button } from "antd";
+import { Input, Button, message } from "antd";
 import { SendOutlined, AudioOutlined, CameraOutlined } from "@ant-design/icons";
+
+// Components
 import GlassDiv from "./GlassDiv";
 
 const { TextArea } = Input;
@@ -10,24 +12,19 @@ const { TextArea } = Input;
 const Send = React.forwardRef((props, ref) => {
   const [userInput, setUserInput] = useState(null);
 
+  const inputRef = useRef(null);
+
   async function submitMessage(event) {
     event.preventDefault();
+    inputRef.current.focus();
     if (typeof userInput === "string" && userInput !== "")
       await props.addMessage(userInput);
     setUserInput(null);
   }
-
-  /**
-   * TODO:
-   *  1. Implement forwards ref in glassDiv component
-   *  2. Make GlassDiv accept class props
-   *
-   *
-   */
-
+  
   return (
-    <GlassDiv className={styles.container}>
-      <form ref={ref} onSubmit={submitMessage} className={styles.form}>
+    <GlassDiv ref={ref} className={styles.container}>
+      <form onSubmit={submitMessage} className={styles.form}>
         <Button
           className={styles["action-button"]}
           onClick={submitMessage}
@@ -46,6 +43,8 @@ const Send = React.forwardRef((props, ref) => {
         />
         <div className={styles["input-container"]}>
           <TextArea
+            ref={inputRef}
+            onFocus={props.scrollToBottom}
             value={userInput}
             onPressEnter={submitMessage}
             onChange={(event) => setUserInput(event.target.value)}

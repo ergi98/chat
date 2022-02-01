@@ -1,8 +1,7 @@
 .container {
-  width: 100vw !important;
-  padding: 12px 14px;
-  position: sticky;
   bottom: 0;
+  width: 100%;
+  padding: 6px 14px;
 }
 
 .form {
@@ -27,7 +26,7 @@
   border-radius: 20px;
   border: none;
 
-  padding: 8px;
+  padding: 6px;
 
   position: relative;
   background-color: #272727;

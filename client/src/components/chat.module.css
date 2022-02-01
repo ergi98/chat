@@ -1,27 +1,11 @@
 .chat {
-  width: 100vw;
-  height: 100vh;
-  padding: 4px 14px calc(55px + 80px + 4px + 14px + 8px) 14px;
-  overflow-y: auto;
+  width: 100%;
+  height: calc(100vh - 55px - 64px);
+  height: calc(var(--vh, 1vh) * 100 - 55px - 64px);
+  padding: 4px 14px;
   overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
   scroll-behavior: smooth;
   overscroll-behavior: contain;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #242424;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #533deb;
 }

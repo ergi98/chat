@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import styles from "./chat-room.module.css";
 
 // Components
 import Send from "./Send";
@@ -27,21 +28,15 @@ function ChatRoom() {
 
   const { roomId } = useParams();
 
-  const sendRef = useRef(null);
   const chatRef = useRef(null);
+  const sendRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
   const [hasSetListeners, setHasSetListeners] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
 
   // Resize the chat depending on the input field height
-  let observer = new ResizeObserver((entries) => {
-    for (let entry of entries) {
-      chatRef.current.style.paddingBottom = `${
-        entry.target.offsetHeight + 4 + 14 + 55 + 8
-      }px`;
-    }
-  });
+  let observer;
 
   useEffect(() => {
     function checkForRedirect() {
@@ -80,12 +75,6 @@ function ChatRoom() {
       setHasSetListeners(true);
     }
 
-    function scrollToBottom() {
-      if (chatRef && chatRef?.current) {
-        chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      }
-    }
-    
     if (rootData !== null && !hasSetListeners) setSocketListeners();
 
     return () => {
@@ -96,14 +85,43 @@ function ChatRoom() {
     };
   }, [rootData, hasSetListeners]);
 
+  useEffect(() => {
+    if (sendRef && sendRef.current) {
+      console.log("%c Resize observer ChatRoom", "color: #bf55da");
+      observer = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          chatRef.current.style.height = `calc(var(--vh, 1vh) * 100 - ${entry.target.offsetHeight}px - 55px)`;
+        }
+      });
+      observer.observe(sendRef.current);
+    }
+    return () => {
+      if (sendRef && sendRef.current && observer)
+        observer.unobserve(sendRef.current);
+    };
+  }, [sendRef]);
+
+  useEffect(() => {
+    function setGlobalVh() {
+      let vh = window.innerHeight * 0.01;
+      let root = document.querySelector(":root");
+      root.style.setProperty("--vh", `${vh}px`);
+    }
+    setGlobalVh();
+    window.addEventListener("resize", setGlobalVh);
+    return () => {
+      window.removeEventListener("resize", setGlobalVh);
+    };
+  }, []);
+
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
     let tempMessageId = v4(),
       message = {
-        _id: tempMessageId,
         text,
-        sentBy: rootData.user,
         status: "sending",
+        _id: tempMessageId,
+        sentBy: rootData.user,
       };
     try {
       setRoomMessages((prev) => [...prev, message]);
@@ -116,8 +134,6 @@ function ChatRoom() {
       );
       message && rootData.socket.emit("sent-message", message);
     } catch (err) {
-      console.log("message with error");
-      // TODO: Mark message as unsent to retry again
       setRoomMessages((previous) =>
         previous.map((prev) => {
           return prev._id === tempMessageId
@@ -128,22 +144,21 @@ function ChatRoom() {
     }
   }
 
-  useEffect(() => {
-    if (sendRef && sendRef.current) {
-      console.log("%c Resize observer ChatRoom", "color: #bf55da");
-      observer.observe(sendRef.current);
+  function scrollToBottom() {
+    if (chatRef && chatRef?.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-    return () => {
-      if (sendRef && sendRef.current && observer)
-        observer.unobserve(sendRef.current);
-    };
-  }, [sendRef]);
+  }
 
   return (
-    <div style={{ overflow: "none" }}>
+    <div className={styles["chat-room"]}>
       <TopRibbon />
       <Chat ref={chatRef} messages={roomMessages} />
-      <Send ref={sendRef} addMessage={addNewMessage} />
+      <Send
+        ref={sendRef}
+        addMessage={addNewMessage}
+        scrollToBottom={scrollToBottom}
+      />
     </div>
   );
 }

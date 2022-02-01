@@ -219,16 +219,24 @@ table {
   font-style: normal;
 }
 
-.height-full {
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-}
-
 .chat-app {
   background-color: #0a0a0a;
   overflow: hidden;
 }
 
-.root-html {
-  height: -webkit-fill-available;
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242424;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #533deb;
 }
