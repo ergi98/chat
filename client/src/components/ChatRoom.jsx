@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import styles from "./chat-room.module.css";
 
 // Components
@@ -10,7 +10,7 @@ import TopRibbon from "./TopRibbon";
 import { useRoot } from "../RootContext";
 
 // Api
-import { sendMessage } from "../mongo/message.js";
+import { sendMessage, getMessagesByChunks } from "../mongo/message.js";
 
 // UUID
 import { v4 } from "uuid";
@@ -31,7 +31,9 @@ function ChatRoom() {
   const chatRef = useRef(null);
   const sendRef = useRef(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [lastFetchDate, setLastFetchDate] = useState(null);
+
   const [hasSetListeners, setHasSetListeners] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
 
@@ -48,6 +50,7 @@ function ChatRoom() {
           : navigate(`/`, { replace: true });
       }
     }
+
     rootData && checkForRedirect();
   }, [rootData]);
 
@@ -83,7 +86,7 @@ function ChatRoom() {
         rootData.socket.off("new-member");
       }
     };
-  }, [rootData, hasSetListeners]);
+  }, [rootData, hasSetListeners, scrollToBottom]);
 
   useEffect(() => {
     if (sendRef && sendRef.current) {
@@ -113,6 +116,50 @@ function ChatRoom() {
       window.removeEventListener("resize", setGlobalVh);
     };
   }, []);
+
+  useEffect(() => {
+    async function initialFetch() {
+      await fetchMessages();
+      scrollToBottom();
+    }
+    hasSetListeners && initialFetch();
+  }, [hasSetListeners, fetchMessages, scrollToBottom]);
+
+  useEffect(() => {
+    async function checkIfScrolledToTop(event) {
+      if (event.target.scrollTop === 0) {
+        await fetchMessages();
+      }
+    }
+
+    if (chatRef && chatRef?.current) {
+      chatRef.current.removeEventListener("scroll", checkIfScrolledToTop);
+      chatRef.current.addEventListener("scroll", checkIfScrolledToTop);
+    }
+
+    return () => {
+      if (chatRef && chatRef?.current) {
+        chatRef.current.removeEventListener("scroll", checkIfScrolledToTop);
+      }
+    };
+  }, [chatRef, lastFetchDate, loading, fetchMessages]);
+
+  const fetchMessages = useCallback(async () => {
+    console.log("Fetching", lastFetchDate);
+    try {
+      setLoading(true);
+      let { date, messages } = await getMessagesByChunks(lastFetchDate);
+      setLastFetchDate(date);
+      setRoomMessages((prev) => [...messages, ...prev]);
+      // TODO:
+      chatRef.current.scrollTop = 50 * messages.length;
+    } catch (err) {
+      console.log(err);
+      message.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, lastFetchDate]);
 
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
@@ -144,16 +191,16 @@ function ChatRoom() {
     }
   }
 
-  function scrollToBottom() {
+  const scrollToBottom = useCallback(() => {
     if (chatRef && chatRef?.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }
+  }, [chatRef]);
 
   return (
     <div className={styles["chat-room"]}>
       <TopRibbon />
-      <Chat ref={chatRef} messages={roomMessages} />
+      <Chat ref={chatRef} messages={roomMessages} loading={loading} />
       <Send
         ref={sendRef}
         addMessage={addNewMessage}

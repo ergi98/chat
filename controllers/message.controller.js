@@ -1,6 +1,7 @@
 import UserSchema from "../schemas/user.schema.js";
 import MessageSchema from "../schemas/message.schema.js";
 
+import mongoose from "mongoose";
 export default class MessageController {
   static async sendMessage(req, res) {
     try {
@@ -20,6 +21,44 @@ export default class MessageController {
 
   static async getMessages(req, res) {
     try {
+      let lastFetchDate = req.query.lastFetchDate;
+      let date = "";
+
+      lastFetchDate === undefined
+        ? (lastFetchDate = new Date())
+        : (lastFetchDate = new Date(lastFetchDate));
+
+      let result = await MessageSchema.aggregate([
+        {
+          $match: {
+            roomId: mongoose.Types.ObjectId(req.headers.room),
+            sentAt: {
+              $lt: lastFetchDate,
+            },
+          },
+        },
+        {
+          $sort: {
+            sentAt: -1,
+          },
+        },
+        {
+          $limit: 50,
+        },
+        {
+          $sort: {
+            sentAt: 1,
+          },
+        },
+      ]);
+
+      if (result && result.length) {
+        date = result[0].sentAt;
+      }
+      res.status(200).send({
+        messages: result,
+        date,
+      });
     } catch (err) {
       console.log(err);
       res

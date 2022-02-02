@@ -15,13 +15,15 @@ export async function sendMessage(text) {
   }
 }
 
-export async function getMessages() {
+export async function getMessagesByChunks(lastFetchDate) {
   try {
-    // TODO: Kinda hard
-    let result = await AxiosInstance.get("/get-messages");
+    let result = await AxiosInstance.get("/get-messages", {
+      params: { lastFetchDate },
+    });
     console.log(result);
     return {
       messages: result.data.messages,
+      date: result.data.date,
     };
   } catch (err) {
     console.log(err);
