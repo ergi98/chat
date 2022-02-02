@@ -84,7 +84,14 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
   socket.on("sent-message", (message) => {
-    io.emit("new-message", message);
+    io.to(message.roomId).emit("new-message", message);
+  });
+  socket.on("typing", (data) => {
+    console.log("Here");
+    socket.broadcast.to(data.room).emit("typing", data.user);
+  });
+  socket.on("finished-typing", (data) => {
+    socket.broadcast.to(data.room).emit("finished-typing", data.user);
   });
 });
 

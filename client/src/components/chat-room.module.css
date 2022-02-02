@@ -3,3 +3,13 @@
   height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
 }
+
+.typing-indicator {
+  color: white;
+  position: sticky;
+  font-size: 12px;
+  z-index: 999;
+  bottom: 0px;
+  text-align: center;
+  /* transform: translateX(-50%); */
+}

@@ -36,6 +36,7 @@ function ChatRoom() {
 
   const [hasSetListeners, setHasSetListeners] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
+  const [typingIndicator, setTypingIndicator] = useState(false);
 
   // Resize the chat depending on the input field height
   let observer;
@@ -74,6 +75,12 @@ function ChatRoom() {
         if (rootData.user !== data._id) {
           message.info("New user joined");
         }
+      });
+      rootData.socket.on("typing", (data) => {
+        setTypingIndicator(true);
+      });
+      rootData.socket.on("finished-typing", (data) => {
+        setTypingIndicator(false);
       });
       setHasSetListeners(true);
     }
@@ -145,7 +152,6 @@ function ChatRoom() {
   }, [chatRef, lastFetchDate, loading, fetchMessages]);
 
   const fetchMessages = useCallback(async () => {
-    console.log("Fetching", lastFetchDate);
     try {
       setLoading(true);
       let { date, messages } = await getMessagesByChunks(lastFetchDate);
@@ -200,7 +206,11 @@ function ChatRoom() {
   return (
     <div className={styles["chat-room"]}>
       <TopRibbon />
-      <Chat ref={chatRef} messages={roomMessages} loading={loading} />
+      <Chat ref={chatRef} messages={roomMessages} loading={loading}>
+        {typingIndicator ? (
+          <div className={styles["typing-indicator"]}>Friend is typing ...</div>
+        ) : null}
+      </Chat>
       <Send
         ref={sendRef}
         addMessage={addNewMessage}

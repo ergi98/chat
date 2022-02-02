@@ -5,7 +5,7 @@ import styles from "./chat.module.css";
 import Message from "./Message";
 
 // ANTD
-import { Spin } from "antd";
+import { Spin, Empty } from "antd";
 
 const Chat = React.forwardRef((props, ref) => {
   // An object with each day as key and an array of messages as value
@@ -63,14 +63,23 @@ const Chat = React.forwardRef((props, ref) => {
           <Spin size="large" />
         </div>
       ) : null}
-      {Object.entries(groupedMessages).map(([date, messageArray]) => (
-        <div key={date}>
-          {date ? <div className={styles["date-header"]}>{date}</div> : null}
-          {messageArray.map((message) => (
-            <Message key={message._id} message={message} />
+      {props.messages.length ? (
+        <>
+          {Object.entries(groupedMessages).map(([date, messageArray]) => (
+            <div key={date}>
+              {date ? (
+                <div className={styles["date-header"]}>{date}</div>
+              ) : null}
+              {messageArray.map((message) => (
+                <Message key={message._id} message={message} />
+              ))}
+            </div>
           ))}
-        </div>
-      ))}
+        </>
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      )}
+      {props.children}
     </div>
   );
 });
