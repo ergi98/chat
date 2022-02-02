@@ -2,12 +2,13 @@
   width: 100%;
   height: calc(100vh - 55px - 64px);
   height: calc(var(--vh, 1vh) * 100 - 55px - 64px);
-  padding: 4px 14px;
+  padding: 14px;
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
   /* scroll-behavior: smooth; */
   overscroll-behavior: contain;
+  background: #0a0a0a;
 }
 
 .loading {
@@ -32,4 +33,11 @@
   top: 8px;
   letter-spacing: 0.65px;
   font-weight: 500;
+}
+
+@media only screen and (min-width: 1000px) {
+  .chat {
+    height: calc(90% - 55px - 64px);
+    max-height: calc(650px - 55px - 64px);
+  }
 }

@@ -22,19 +22,27 @@ const Send = React.forwardRef((props, ref) => {
 
   function handleUserInput(event) {
     if (event.target.value !== "" && !hasEmitted) {
-      rootData.socket.emit("typing", {
-        room: rootData.room,
-        user: rootData.user,
-      });
-      setHasEmitted(true);
-    } else if (event.target.value === "") {
-      rootData.socket.emit("finished-typing", {
-        room: rootData.room,
-        user: rootData.user,
-      });
-      setHasEmitted(false);
+      emitTyping();
+    } else if (!event.target.value) {
+      emitStopTyping();
     }
     setUserInput(event.target.value);
+  }
+
+  function emitTyping() {
+    rootData.socket.emit("typing", {
+      room: rootData.room,
+      user: rootData.user,
+    });
+    setHasEmitted(true);
+  }
+
+  function emitStopTyping() {
+    rootData.socket.emit("finished-typing", {
+      room: rootData.room,
+      user: rootData.user,
+    });
+    setHasEmitted(false);
   }
 
   async function submitMessage(event) {
@@ -43,6 +51,7 @@ const Send = React.forwardRef((props, ref) => {
     if (typeof userInput === "string" && userInput !== "")
       await props.addMessage(userInput);
     setUserInput(null);
+    emitStopTyping();
   }
 
   return (

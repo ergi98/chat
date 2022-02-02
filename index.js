@@ -77,7 +77,7 @@ io.on("connection", (socket) => {
     let decodedToken = decodeToken(`Bearer ${jwt}`);
     if (decodedToken) {
       socket.join(decodedToken.roomId);
-      io.to(decodedToken.roomId).emit("new-member", decodedToken);
+      socket.broadcast.to(decodedToken.roomId).emit("new-member", decodedToken);
     }
   });
   socket.on("disconnect", () => {
@@ -87,7 +87,6 @@ io.on("connection", (socket) => {
     io.to(message.roomId).emit("new-message", message);
   });
   socket.on("typing", (data) => {
-    console.log("Here");
     socket.broadcast.to(data.room).emit("typing", data.user);
   });
   socket.on("finished-typing", (data) => {
