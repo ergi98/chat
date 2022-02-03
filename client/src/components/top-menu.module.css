@@ -1,0 +1,38 @@
+.theme-text {
+  margin-right: 8px;
+}
+
+.theme-menu {
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  background: #303030;
+  color: #fefefe !important;
+  padding: 24px;
+  padding-top: 48px;
+}
+
+.menu-item:hover {
+  background: #533deb;
+}
+
+.menu-item:first-child {
+  background: #303030;
+}
+
+.menu-text {
+  color: #fefefe;
+}
+
+.modal-body {
+  background: #303030;
+  border-radius: 15px;
+
+  padding: 0;
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.56);
+}

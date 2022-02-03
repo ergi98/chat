@@ -240,3 +240,16 @@ table {
 ::-webkit-scrollbar-thumb:hover {
   background: #533deb;
 }
+
+.ant-modal-content {
+  border-radius: 15px;
+}
+
+.ant-modal-body {
+  padding: 0px;
+}
+
+.ant-menu {
+  border: 1px solid gray;
+  border-radius: 15px;
+}
