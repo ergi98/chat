@@ -220,6 +220,23 @@ table {
 }
 
 [data-theme="light"] {
+  --primary: #798bf1;
+  --border-color: #ececec;
+  --box-shadow: #c3c3c3bf;
+
+  --text-light: #707070;
+  --text-primary: #5a5a5a;
+  --text-dark: #171717;
+
+  --light-bg: #fefefe67;
+  --dark-bg: #e3e3e3;
+  --darker-bg: #eeeded;
+  --darkest-bg: #1a1a1a;
+
+  --message-dark: #e3e3e3;
+  --overlay: #5a5a5abf;
+
+  --error: #fe918d;
 }
 
 [data-theme="dark"] {

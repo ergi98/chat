@@ -9,12 +9,17 @@ import { CloseOutlined } from "@ant-design/icons";
 
 function Options({ isVisible, close }) {
   function onThemeChange(event) {
+    let mode = "dark";
     switch (event) {
       case true:
+        mode = "dark";
         break;
       case false:
+        mode = "light";
         break;
     }
+    document.documentElement.setAttribute("data-theme", mode);
+    localStorage.setItem("theme", JSON.stringify(mode));
   }
 
   return (
