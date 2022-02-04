@@ -1,6 +1,6 @@
 .menu {
-  background: var(--modal-header);
-  color: var(--text-white) !important;
+  background: var(--dark-bg);
+  color: var(--text-primary) !important;
   width: 150px;
   padding: 4px;
 }
@@ -15,6 +15,6 @@
 }
 
 .menu-item:hover {
-  color: var(--text-white) !important;
+  color: var(--text-primary) !important;
   background: var(--primary);
 }

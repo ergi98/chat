@@ -12,11 +12,11 @@
 }
 
 .action-button {
-  color: var(--text-white);
+  color: var(--text-primary);
 }
 
 .action-button:hover {
-  color: var(--text-white);
+  color: var(--text-primary);
 }
 
 .input-container {
@@ -29,7 +29,7 @@
   padding: 6px;
 
   position: relative;
-  background: var(--chat-bg-2);
+  background: var(--darker-bg);
 }
 
 .input-field {
@@ -38,8 +38,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 
-  color: var(--text-white);
-  caret-color: var(--text-white);
+  color: var(--text-primary);
+  caret-color: var(--text-primary);
   font-weight: normal;
   font-size: 16px;
   line-height: 24px;

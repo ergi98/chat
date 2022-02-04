@@ -1,5 +1,5 @@
 .text {
-  color: var(--text-white);
+  color: var(--text-primary);
   font-size: 14px;
 }
 
@@ -14,9 +14,9 @@
 }
 
 .modal-header {
-  background: var(--modal-header);
+  background: var(--dark-bg);
   padding: 12px 24px;
-  color: var(--text-white);
+  color: var(--text-primary);
 
   font-size: 22px;
   border-radius: 15px 15px 0 0;
@@ -30,10 +30,10 @@
 
 .divider {
   border: none;
-  background-color: var(--text-gray-500);
+  background-color: var(--border-color);
   height: 1px;
 }
 
 .close-icon {
-  color: var(--text-white);
+  color: var(--text-primary);
 }

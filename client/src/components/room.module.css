@@ -5,12 +5,12 @@
   justify-content: center;
   height: 100vh;
   padding: 20px;
-  background-image: linear-gradient(var(--primary) 20%, var(--bg-stop));
+  background-image: linear-gradient(var(--primary) 20%, var(--darkest-bg));
 }
 
 .title {
   font-size: 28px;
-  color: var(--text-white);
+  color: var(--text-primary);
   letter-spacing: 2px;
   margin-bottom: 16px;
   font-weight: bold;
@@ -18,7 +18,7 @@
 
 .hint {
   font-size: 16px;
-  color: var(--text-white);
+  color: var(--text-primary);
 }
 
 .link {
@@ -29,7 +29,7 @@
   text-overflow: ellipsis;
   max-width: 90vw;
   padding: 45px 10px;
-  color: var(--text-white);
+  color: var(--text-primary);
   word-break: nowrap;
 }
 
@@ -38,6 +38,6 @@
 }
 
 .loading-text {
-  color: var(--text-white);
+  color: var(--text-primary);
   margin-top: 12px;
 }

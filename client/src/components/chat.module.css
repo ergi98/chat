@@ -8,7 +8,7 @@
   position: relative;
   /* scroll-behavior: smooth; */
   overscroll-behavior: contain;
-  background: var(--chat-bg-2);
+  background: var(--darker-bg);
 }
 
 .loading {
@@ -24,8 +24,8 @@
 .date-header {
   z-index: 2;
   width: fit-content;
-  color: var(--date-header);
-  background: var(--date-background);
+  color: var(--text-light);
+  background: var(--light-bg);
   padding: 4px 12px;
   margin: 12px 0;
   display: flex;

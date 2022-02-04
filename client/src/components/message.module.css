@@ -7,7 +7,7 @@
   border-radius: 12px;
   font-size: 16px;
   letter-spacing: 0.5px;
-  color: var(--text-gray);
+  color: var(--text-dark);
 
   padding: 8px;
 }
@@ -27,7 +27,7 @@
 }
 
 .theirs {
-  background-color: var(--theirs-bg);
+  background-color: var(--message-dark);
 }
 
 .check-svg {
@@ -36,12 +36,12 @@
 
 .theirs .check-svg,
 .theirs .sent-at {
-  color: var(--text-gray-200);
+  color: var(--text-dark);
 }
 
 .mine .check-svg,
 .mine .sent-at {
-  color: var(--text-gray-300);
+  color: var(---text-dark);
 }
 
 .sent-at {

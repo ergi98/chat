@@ -39,7 +39,7 @@ function Options({ isVisible, close }) {
       visible={isVisible}
       autoFocusButton={null}
       bodyStyle={{
-        background: "var(--modal-header)",
+        background: "var(--dark-bg)",
       }}
       maskStyle={{
         background: "var(--overlay)",
