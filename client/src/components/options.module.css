@@ -1,0 +1,39 @@
+.text {
+  color: #fefefe;
+  font-size: 14px;
+}
+
+.modal-overlay {
+  background: #0000008f;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 12px 24px 12px;
+}
+
+.modal-header {
+  background: #303030;
+  padding: 12px 24px;
+  color: white;
+
+  font-size: 22px;
+  border-radius: 15px 15px 0 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.divider {
+  border: none;
+  background-color: rgb(158, 158, 158);
+  height: 1px;
+}
+
+.close-icon {
+  color: white;
+}

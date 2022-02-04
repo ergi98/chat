@@ -2,37 +2,42 @@ import React from "react";
 import styles from "./top-menu.module.css";
 
 // ANTD
-import { Menu, Switch, Modal } from "antd";
+import { Menu } from "antd";
 
-function TopMenu({ isVisible }) {
-  function onThemeChange() {
-    console.log("changed themes");
+// Icons
+import { ToolOutlined, LogoutOutlined } from "@ant-design/icons";
+
+function TopMenu(props) {
+  function handleMenuItemClick({ key }) {
+    switch (key) {
+      case "options":
+        props.toggleOptions();
+        break;
+      case "leave":
+        handleChatLeave();
+        break;
+    }
+  }
+
+  function handleChatLeave() {
+    console.log("leaving chat")
   }
 
   return (
-    <Modal
-      visible={isVisible}
-      footer={null}
-      autoFocusButton={null}
-      className={styles["modal-body"]}
-      wrapClassName={styles["modal-overlay"]}
-      closable={true}
-      maskClosable={true}
+    <Menu
+      selectable={false}
+      className={styles.menu}
+      onClick={handleMenuItemClick}
     >
-      <Menu className={styles.menu}>
-        <Menu.Item className={styles["menu-item"]}>
-          <div className={styles["theme-menu"]}>
-            <div className={`${styles["theme-text"]} ${styles["menu-text"]}`}>
-              Toggle Dark Mode
-            </div>
-            <Switch defaultChecked onChange={onThemeChange} />
-          </div>
-        </Menu.Item>
-        <Menu.Item className={`${styles["menu-text"]} ${styles["menu-item"]}`}>
-          Leave Group
-        </Menu.Item>
-      </Menu>
-    </Modal>
+      <Menu.Item key="options" className={styles["menu-item"]}>
+        <div>Options</div>
+        <ToolOutlined />
+      </Menu.Item>
+      <Menu.Item key="leave" className={styles["menu-item"]}>
+        <div>Leave Chat</div>
+        <LogoutOutlined />
+      </Menu.Item>
+    </Menu>
   );
 }
 

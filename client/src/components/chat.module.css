@@ -14,14 +14,20 @@
 .loading {
   padding: 12px 0px;
   text-align: center;
-  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: 48px;
+  transform: translateX(-50%);
+  z-index: 5
 }
 
 .date-header {
+  z-index: 2;
   width: fit-content;
   color: #d1d1d1;
   background: #fefefe67;
   padding: 4px 12px;
+  margin: 12px 0;
   display: flex;
   align-items: center;
   justify-content: center;

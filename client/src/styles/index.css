@@ -241,15 +241,37 @@ table {
   background: #533deb;
 }
 
-.ant-modal-content {
-  border-radius: 15px;
-}
-
-.ant-modal-body {
+/* .ant-modal-body {
   padding: 0px;
-}
+} */
 
 .ant-menu {
   border: 1px solid gray;
   border-radius: 15px;
+}
+
+.ant-modal-header {
+  padding: 0;
+  border: none;
+}
+
+.ant-menu-title-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ant-modal-content {
+  border-radius: 15px;
+  background: transparent;
+}
+
+.ant-modal-header {
+  background: transparent;
+  border-radius: 15px 15px 0 0;
+}
+
+.ant-modal-body {
+  border-radius: 0 0 15px 15px;
 }

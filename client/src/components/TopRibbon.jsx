@@ -7,27 +7,42 @@ import { Button, Dropdown } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 
 // Components
-import GlassDiv from "./GlassDiv";
+import Options from "./Options";
 import TopMenu from "./TopMenu";
+import GlassDiv from "./GlassDiv";
 
 function TopRibbon() {
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  function toggleMenu() {
-    setIsModalVisible((prev) => !prev);
+  function toggleOptions() {
+    setDropdownState(false);
+    setTimeout(() => setIsModalVisible((prev) => !prev), 300);
   }
-  
+
+  function setDropdownState(value) {
+    setIsDropdownVisible(value);
+  }
+
   return (
     <GlassDiv className={styles.top}>
       <div>Chat Room</div>
-      <Button
-        onClick={toggleMenu}
-        icon={<MoreOutlined className={styles["more-icon"]} />}
-        shape="rounded"
-        size="large"
-        type="text"
+      <Dropdown
+        visible={isDropdownVisible}
+        overlay={<TopMenu toggleOptions={toggleOptions} />}
+      >
+        <Button
+          icon={<MoreOutlined className={styles["more-icon"]} />}
+          onClick={() => setDropdownState(!isDropdownVisible)}
+          shape="rounded"
+          size="large"
+          type="text"
+        />
+      </Dropdown>
+      <Options
+        isVisible={isModalVisible}
+        close={() => setIsModalVisible(false)}
       />
-      <TopMenu isVisible={isModalVisible} />
     </GlassDiv>
   );
 }
