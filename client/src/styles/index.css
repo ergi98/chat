@@ -219,8 +219,34 @@ table {
   font-style: normal;
 }
 
+[data-theme="light"] {
+}
+
+[data-theme="dark"] {
+  --chat-bg: #242424;
+  --primary: #533deb;
+  --menu-border: #808080;
+  --chat-outline: #3e3e3e;
+  --box-shadow: #0f0f0fbf;
+  --chat-bg-2: #0a0a0a;
+  --date-header: #d1d1d1;
+  --date-background: #fefefe67;
+  --glass-bg: #31313161;
+  --text-white: #f3f3f3;
+  --menu-bg: #27232333;
+  --text-gray: #c5c5c5;
+  --theirs-bg: #272727;
+  --text-gray-200: #6d6d6d;
+  --text-gray-300: #b2b2b2;
+  --error: #ff7874;
+  --overlay: #0000008f;
+  --modal-header: #303030;
+  --text-gray-500: #9e9e9e;
+  --bg-stop: #1a1a1a;
+}
+
 .chat-app {
-  background-color: #242424;
+  background: var(--chat-bg);
   overflow: hidden;
 }
 
@@ -233,12 +259,12 @@ table {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #242424;
+  background: var(--chat-bg);
   border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #533deb;
+  background: var(--primary);
 }
 
 /* .ant-modal-body {
@@ -246,7 +272,7 @@ table {
 } */
 
 .ant-menu {
-  border: 1px solid gray;
+  border: 1px solid var(--menu-border);
   border-radius: 15px;
 }
 

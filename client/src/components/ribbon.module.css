@@ -1,12 +1,12 @@
 .top {
   height: 55px;
   display: flex;
-  color: #f3f3f3;
+  color: var(--text-white);
   align-items: center;
   justify-content: space-between;
   padding: 0px 14px;
 }
 
 .more-icon {
-  color: #f3f3f3;
+  color: var(--text-white);
 }

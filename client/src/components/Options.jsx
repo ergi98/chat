@@ -8,12 +8,13 @@ import { Switch, Modal, Button } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
 function Options({ isVisible, close }) {
-  function onThemeChange() {
-    console.log("changed themes");
-  }
-
-  function onLeaveClick() {
-    console.log("Leave click");
+  function onThemeChange(event) {
+    switch (event) {
+      case true:
+        break;
+      case false:
+        break;
+    }
   }
 
   return (
@@ -38,10 +39,10 @@ function Options({ isVisible, close }) {
       visible={isVisible}
       autoFocusButton={null}
       bodyStyle={{
-        background: "#303030",
+        background: "var(--modal-header)",
       }}
       maskStyle={{
-        background: "#0000008f",
+        background: "var(--overlay)",
       }}
       onCancel={() => close()}
     >

@@ -8,7 +8,7 @@
   position: relative;
   /* scroll-behavior: smooth; */
   overscroll-behavior: contain;
-  background: #0a0a0a;
+  background: var(--chat-bg-2);
 }
 
 .loading {
@@ -18,14 +18,14 @@
   left: 50%;
   top: 48px;
   transform: translateX(-50%);
-  z-index: 5
+  z-index: 5;
 }
 
 .date-header {
   z-index: 2;
   width: fit-content;
-  color: #d1d1d1;
-  background: #fefefe67;
+  color: var(--date-header);
+  background: var(--date-background);
   padding: 4px 12px;
   margin: 12px 0;
   display: flex;

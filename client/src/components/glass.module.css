@@ -2,6 +2,6 @@
   width: 100%;
   z-index: 999;
   position: sticky;
-  background: #31313161;
+  background: var(--glass-bg);
   backdrop-filter: blur(70px);
 }

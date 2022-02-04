@@ -11,7 +11,7 @@ import App from "./App";
 
 ConfigProvider.config({
   theme: {
-    primaryColor: "#533deb",
+    primaryColor: "var(--primary)",
   },
 });
 

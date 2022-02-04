@@ -1,10 +1,10 @@
 .text {
-  color: #fefefe;
+  color: var(--text-white);
   font-size: 14px;
 }
 
 .modal-overlay {
-  background: #0000008f;
+  background: var(--overlay);
 }
 
 .menu {
@@ -14,9 +14,9 @@
 }
 
 .modal-header {
-  background: #303030;
+  background: var(--modal-header);
   padding: 12px 24px;
-  color: white;
+  color: var(--text-white);
 
   font-size: 22px;
   border-radius: 15px 15px 0 0;
@@ -30,10 +30,10 @@
 
 .divider {
   border: none;
-  background-color: rgb(158, 158, 158);
+  background-color: var(--text-gray-500);
   height: 1px;
 }
 
 .close-icon {
-  color: white;
+  color: var(--text-white);
 }

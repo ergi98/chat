@@ -1,6 +1,6 @@
 .message-menu {
   border: none;
-  color: #f3f3f3;
+  color: var(--text-white);
   min-width: 180px;
   background-color: transparent;
   border-radius: 10px;
@@ -14,6 +14,6 @@
   filter: blur(1px);
   border-radius: 10px;
   position: absolute;
-  background: #27232333;
+  background: var(--menu-bg);
   backdrop-filter: blur(70px);
 }

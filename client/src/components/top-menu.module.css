@@ -1,6 +1,6 @@
 .menu {
-  background: #303030;
-  color: #fefefe !important;
+  background: var(--modal-header);
+  color: var(--text-white) !important;
   width: 150px;
   padding: 4px;
 }
@@ -15,6 +15,6 @@
 }
 
 .menu-item:hover {
-  color: #f3f3f3 !important;
-  background: #533deb;
+  color: var(--text-white) !important;
+  background: var(--primary);
 }
