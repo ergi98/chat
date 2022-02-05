@@ -30,10 +30,6 @@
   background-color: var(--message-dark);
 }
 
-.check-svg {
-  transform: scale(0.8);
-}
-
 .theirs .check-svg,
 .theirs .sent-at {
   color: var(--text-dark);

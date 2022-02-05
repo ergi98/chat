@@ -50,7 +50,7 @@ function Message({ message }) {
           </span>
           {/* className={styles["check-svg"]} */}
           {message.status === 'sent' ? (
-            <CheckOutlined className={styles['check-svg']} />
+            <CheckOutlined />
           ) : message.status === 'sending' ? (
             <LoadingOutlined />
           ) : null}
