@@ -1,14 +1,14 @@
-import React, { useState, useRef } from "react";
-import styles from "./send.module.css";
+import React, { useState, useRef } from 'react';
+import styles from './send.module.css';
 
-import { Input, Button } from "antd";
-import { SendOutlined, AudioOutlined, CameraOutlined } from "@ant-design/icons";
+import { Input, Button } from 'antd';
+import { SendOutlined, AudioOutlined, CameraOutlined } from '@ant-design/icons';
 
 // Components
-import GlassDiv from "./GlassDiv";
+import GlassDiv from './GlassDiv';
 
 // Context
-import { useRoot } from "../RootContext";
+import { useRoot } from '../RootContext';
 
 const { TextArea } = Input;
 
@@ -21,7 +21,7 @@ const Send = React.forwardRef((props, ref) => {
   const rootData = useRoot();
 
   function handleUserInput(event) {
-    if (event.target.value !== "" && !hasEmitted) {
+    if (event.target.value !== '' && !hasEmitted) {
       emitTyping();
     } else if (!event.target.value) {
       emitStopTyping();
@@ -30,17 +30,17 @@ const Send = React.forwardRef((props, ref) => {
   }
 
   function emitTyping() {
-    rootData.socket.emit("typing", {
+    rootData.socket.emit('typing', {
       room: rootData.room,
-      user: rootData.user,
+      user: rootData.user
     });
     setHasEmitted(true);
   }
 
   function emitStopTyping() {
-    rootData.socket.emit("finished-typing", {
+    rootData.socket.emit('finished-typing', {
       room: rootData.room,
-      user: rootData.user,
+      user: rootData.user
     });
     setHasEmitted(false);
   }
@@ -48,8 +48,7 @@ const Send = React.forwardRef((props, ref) => {
   async function submitMessage(event) {
     event.preventDefault();
     inputRef.current.focus();
-    if (typeof userInput === "string" && userInput !== "")
-      await props.addMessage(userInput);
+    if (typeof userInput === 'string' && userInput !== '') await props.addMessage(userInput);
     setUserInput(null);
     emitStopTyping();
   }
@@ -58,7 +57,7 @@ const Send = React.forwardRef((props, ref) => {
     <GlassDiv ref={ref} className={styles.container}>
       <form onSubmit={submitMessage} className={styles.form}>
         <Button
-          className={styles["action-button"]}
+          className={styles['action-button']}
           onClick={submitMessage}
           icon={<CameraOutlined />}
           shape="circle"
@@ -66,14 +65,14 @@ const Send = React.forwardRef((props, ref) => {
           type="text"
         />
         <Button
-          className={styles["action-button"]}
+          className={styles['action-button']}
           onClick={submitMessage}
           icon={<AudioOutlined />}
           shape="circle"
           size="large"
           type="text"
         />
-        <div className={styles["input-container"]}>
+        <div className={styles['input-container']}>
           <TextArea
             ref={inputRef}
             onFocus={props.scrollToBottom}
@@ -82,7 +81,7 @@ const Send = React.forwardRef((props, ref) => {
             onChange={handleUserInput}
             autoSize={{ minRows: 1, maxRows: 6 }}
             bordered={false}
-            className={styles["input-field"]}
+            className={styles['input-field']}
             placeholder="Write something..."
           />
           <Button
@@ -97,5 +96,7 @@ const Send = React.forwardRef((props, ref) => {
     </GlassDiv>
   );
 });
+
+Send.displayName = 'Send';
 
 export default Send;

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import styles from "./chat.module.css";
+import React, { useState, useEffect } from 'react';
+import styles from './chat.module.css';
 
 // Components
-import Message from "./Message";
+import Message from './Message';
 
 // ANTD
-import { Spin, Empty } from "antd";
+import { Spin, Empty } from 'antd';
 
 const Chat = React.forwardRef((props, ref) => {
   // An object with each day as key and an array of messages as value
@@ -31,25 +31,23 @@ const Chat = React.forwardRef((props, ref) => {
     function formatMessageDate(date) {
       let dateObj = new Date(date);
       // 13 Mon 2022
-      return `${dateObj.getDate()} ${mapMonth(
-        dateObj.getMonth()
-      )} ${dateObj.getFullYear()}`;
+      return `${dateObj.getDate()} ${mapMonth(dateObj.getMonth())} ${dateObj.getFullYear()}`;
     }
 
     function mapMonth(index) {
       let months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ];
       return months[index];
     }
@@ -67,9 +65,7 @@ const Chat = React.forwardRef((props, ref) => {
         <>
           {Object.entries(groupedMessages).map(([date, messageArray]) => (
             <div key={date}>
-              {date ? (
-                <div className={styles["date-header"]}>{date}</div>
-              ) : null}
+              {date ? <div className={styles['date-header']}>{date}</div> : null}
               {messageArray.map((message) => (
                 <Message key={message._id} message={message} />
               ))}
@@ -83,5 +79,7 @@ const Chat = React.forwardRef((props, ref) => {
     </div>
   );
 });
+
+Chat.displayName = 'Chat';
 
 export default Chat;

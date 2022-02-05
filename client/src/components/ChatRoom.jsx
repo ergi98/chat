@@ -1,25 +1,25 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
-import styles from "./chat-room.module.css";
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import styles from './chat-room.module.css';
 
 // Components
-import Send from "./Send";
-import Chat from "./Chat";
-import TopRibbon from "./TopRibbon";
+import Send from './Send';
+import Chat from './Chat';
+import TopRibbon from './TopRibbon';
 
 // Context
-import { useRoot } from "../RootContext";
+import { useRoot } from '../RootContext';
 
 // Api
-import { sendMessage, getMessagesByChunks } from "../mongo/message.js";
+import { sendMessage, getMessagesByChunks } from '../mongo/message.js';
 
 // UUID
-import { v4 } from "uuid";
+import { v4 } from 'uuid';
 
 // Router
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from 'react-router-dom';
 
 // ANTD
-import { message } from "antd";
+import { message } from 'antd';
 
 function ChatRoom() {
   const navigate = useNavigate();
@@ -38,12 +38,9 @@ function ChatRoom() {
   const [roomMessages, setRoomMessages] = useState([]);
   const [typingIndicator, setTypingIndicator] = useState(false);
 
-  // Resize the chat depending on the input field height
-  let observer;
-
   useEffect(() => {
     function checkForRedirect() {
-      console.log("%c Check for redirect ChatRoom", "color: #bf55da");
+      console.log('%c Check for redirect ChatRoom', 'color: #bf55da');
       if (!roomId) {
         let storedRoomId = rootData.room;
         storedRoomId
@@ -53,12 +50,12 @@ function ChatRoom() {
     }
 
     rootData && checkForRedirect();
-  }, [rootData]);
+  }, [rootData, navigate, roomId]);
 
   useEffect(() => {
     function setSocketListeners() {
-      console.log("%c new-message listener ChatRoom", "color: #bf55da");
-      rootData.socket.on("new-message", (message) => {
+      console.log('%c new-message listener ChatRoom', 'color: #bf55da');
+      rootData.socket.on('new-message', (message) => {
         // If yours update
         if (message.sentBy === rootData.user) {
           setRoomMessages((previous) =>
@@ -71,15 +68,15 @@ function ChatRoom() {
         else setRoomMessages((previous) => [...previous, message]);
         scrollToBottom();
       });
-      rootData.socket.on("new-member", (data) => {
+      rootData.socket.on('new-member', (data) => {
         if (rootData.user !== data._id) {
-          message.info("New user joined");
+          message.info('New user joined');
         }
       });
-      rootData.socket.on("typing", (data) => {
+      rootData.socket.on('typing', () => {
         setTypingIndicator(true);
       });
-      rootData.socket.on("finished-typing", (data) => {
+      rootData.socket.on('finished-typing', () => {
         setTypingIndicator(false);
       });
       setHasSetListeners(true);
@@ -89,38 +86,47 @@ function ChatRoom() {
 
     return () => {
       if (rootData !== null && hasSetListeners) {
-        rootData.socket.off("new-message");
-        rootData.socket.off("new-member");
+        rootData.socket.off('new-message');
+        rootData.socket.off('new-member');
       }
     };
   }, [rootData, hasSetListeners, scrollToBottom]);
 
   useEffect(() => {
-    if (sendRef && sendRef.current) {
-      console.log("%c Resize observer ChatRoom", "color: #bf55da");
+    let observer, localSendRef, localChatRef;
+
+    function attachResizeObserver(expandingElRef, shrinkingElRef) {
+      console.log('%c Resize observer ChatRoom', 'color: #bf55da');
+      // Resize the chat depending on the input field height
       observer = new ResizeObserver((entries) => {
         for (let entry of entries) {
-          chatRef.current.style.height = `calc(var(--vh, 1vh) * 100 - ${entry.target.offsetHeight}px - 55px)`;
+          shrinkingElRef.style.height = `calc(var(--vh, 1vh) * 100 - ${entry.target.offsetHeight}px - 55px)`;
         }
       });
-      observer.observe(sendRef.current);
+      observer.observe(expandingElRef);
     }
+
+    if (sendRef?.current && chatRef?.current) {
+      let localSendRef = sendRef.current;
+      let localChatRef = chatRef.current;
+      attachResizeObserver(localSendRef, localChatRef);
+    }
+
     return () => {
-      if (sendRef && sendRef.current && observer)
-        observer.unobserve(sendRef.current);
+      if (localChatRef?.current && observer) observer.unobserve(localSendRef);
     };
   }, [sendRef]);
 
   useEffect(() => {
     function setGlobalVh() {
       let vh = window.innerHeight * 0.01;
-      let root = document.querySelector(":root");
-      root.style.setProperty("--vh", `${vh}px`);
+      let root = document.querySelector(':root');
+      root.style.setProperty('--vh', `${vh}px`);
     }
     setGlobalVh();
-    window.addEventListener("resize", setGlobalVh);
+    window.addEventListener('resize', setGlobalVh);
     return () => {
-      window.removeEventListener("resize", setGlobalVh);
+      window.removeEventListener('resize', setGlobalVh);
     };
   }, []);
 
@@ -133,23 +139,26 @@ function ChatRoom() {
   }, [hasSetListeners, fetchMessages, scrollToBottom]);
 
   useEffect(() => {
+    let chatCurrent;
+
     async function checkIfScrolledToTop(event) {
       if (event.target.scrollTop === 0) {
         await fetchMessages();
       }
     }
 
-    if (chatRef && chatRef?.current) {
-      chatRef.current.removeEventListener("scroll", checkIfScrolledToTop);
-      chatRef.current.addEventListener("scroll", checkIfScrolledToTop);
+    if (chatRef?.current) {
+      chatCurrent = chatRef.current;
+      chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
+      chatCurrent.addEventListener('scroll', checkIfScrolledToTop);
     }
 
     return () => {
-      if (chatRef && chatRef?.current) {
-        chatRef.current.removeEventListener("scroll", checkIfScrolledToTop);
+      if (chatCurrent) {
+        chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
       }
     };
-  }, [chatRef, lastFetchDate, loading, fetchMessages]);
+  }, [chatRef, fetchMessages]);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -157,24 +166,23 @@ function ChatRoom() {
       let { date, messages } = await getMessagesByChunks(lastFetchDate);
       setLastFetchDate(date);
       setRoomMessages((prev) => [...messages, ...prev]);
-      // TODO:
-      chatRef.current.scrollTop = 50 * messages.length;
+      // chatRef.current.scrollTop = 50 * messages.length;
     } catch (err) {
       console.log(err);
       message.error(err.message);
     } finally {
       setLoading(false);
     }
-  }, [loading, lastFetchDate]);
+  }, [lastFetchDate]);
 
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
     let tempMessageId = v4(),
       message = {
         text,
-        status: "sending",
+        status: 'sending',
         _id: tempMessageId,
-        sentBy: rootData.user,
+        sentBy: rootData.user
       };
     try {
       setRoomMessages((prev) => [...prev, message]);
@@ -185,13 +193,11 @@ function ChatRoom() {
           return prev._id === tempMessageId ? message : prev;
         })
       );
-      message && rootData.socket.emit("sent-message", message);
+      message && rootData.socket.emit('sent-message', message);
     } catch (err) {
       setRoomMessages((previous) =>
         previous.map((prev) => {
-          return prev._id === tempMessageId
-            ? { ...message, status: "error" }
-            : prev;
+          return prev._id === tempMessageId ? { ...message, status: 'error' } : prev;
         })
       );
     }
@@ -204,18 +210,14 @@ function ChatRoom() {
   }, [chatRef]);
 
   return (
-    <div className={styles["chat-room"]}>
+    <div className={styles['chat-room']}>
       <TopRibbon />
       <Chat ref={chatRef} messages={roomMessages} loading={loading}>
         {typingIndicator ? (
-          <div className={styles["typing-indicator"]}>Friend is typing ...</div>
+          <div className={styles['typing-indicator']}>Friend is typing ...</div>
         ) : null}
       </Chat>
-      <Send
-        ref={sendRef}
-        addMessage={addNewMessage}
-        scrollToBottom={scrollToBottom}
-      />
+      <Send ref={sendRef} addMessage={addNewMessage} scrollToBottom={scrollToBottom} />
     </div>
   );
 }
