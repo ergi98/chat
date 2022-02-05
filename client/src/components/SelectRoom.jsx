@@ -155,7 +155,6 @@ function SelectRoom() {
     }
 
     if (rootData !== null && hasPerformedSetup === false) {
-      console.log(rootData, hasPerformedSetup);
       console.log('%c InitialSetup SelectRoom', 'color: #557fda');
       initialSetup();
     }
