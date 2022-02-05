@@ -1,6 +1,15 @@
 .text {
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 16px;
+  padding-bottom: 24px;
+}
+
+.radio {
+  padding-left: 24px;
+}
+
+.radio-value {
+  color: var(--text-primary);
 }
 
 .modal-overlay {
@@ -8,8 +17,6 @@
 }
 
 .menu {
-  display: flex;
-  justify-content: space-between;
   padding: 0px 12px 24px 12px;
 }
 
