@@ -21,6 +21,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 // ANTD
 import { message } from 'antd';
 
+async function fetchMessages(date = null) {
+  try {
+    let data = await getMessagesByChunks(date);
+    return data;
+    // chatRef.current.scrollTop = 50 * messages.length;
+  } catch (err) {
+    console.log(err);
+    message.error(err.message);
+  }
+}
+
 function ChatRoom() {
   const navigate = useNavigate();
 
@@ -32,6 +43,7 @@ function ChatRoom() {
   const sendRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
+  const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
   const [lastFetchDate, setLastFetchDate] = useState(null);
 
   const [hasSetListeners, setHasSetListeners] = useState(false);
@@ -88,6 +100,8 @@ function ChatRoom() {
       if (rootData !== null && hasSetListeners) {
         rootData.socket.off('new-message');
         rootData.socket.off('new-member');
+        rootData.socket.off('typing');
+        rootData.socket.on('finished-typing');
       }
     };
   }, [rootData, hasSetListeners, scrollToBottom]);
@@ -132,18 +146,28 @@ function ChatRoom() {
 
   useEffect(() => {
     async function initialFetch() {
-      await fetchMessages();
+      setLoading(true);
+      let { date, messages } = await fetchMessages();
+      setLastFetchDate(date);
+      setRoomMessages((prev) => [...messages, ...prev]);
+      setLoading(false);
       scrollToBottom();
     }
     hasSetListeners && initialFetch();
-  }, [hasSetListeners, fetchMessages, scrollToBottom]);
+  }, [hasSetListeners, scrollToBottom]);
 
   useEffect(() => {
     let chatCurrent;
 
     async function checkIfScrolledToTop(event) {
       if (event.target.scrollTop === 0) {
-        await fetchMessages();
+        if (hasMoreToFetch === false) return;
+        setLoading(true);
+        let { date, messages } = await fetchMessages(lastFetchDate);
+        setLastFetchDate(date);
+        setHasMoreToFetch(!!messages.length);
+        setRoomMessages((prev) => [...messages, ...prev]);
+        setLoading(false);
       }
     }
 
@@ -158,22 +182,7 @@ function ChatRoom() {
         chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
       }
     };
-  }, [chatRef, fetchMessages]);
-
-  const fetchMessages = useCallback(async () => {
-    try {
-      setLoading(true);
-      let { date, messages } = await getMessagesByChunks(lastFetchDate);
-      setLastFetchDate(date);
-      setRoomMessages((prev) => [...messages, ...prev]);
-      // chatRef.current.scrollTop = 50 * messages.length;
-    } catch (err) {
-      console.log(err);
-      message.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [lastFetchDate]);
+  }, [chatRef, hasMoreToFetch, lastFetchDate]);
 
   // TODO: Make api call to fetch last 50 messages
   async function addNewMessage(text) {
