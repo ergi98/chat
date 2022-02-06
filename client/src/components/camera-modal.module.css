@@ -1,0 +1,15 @@
+.video-container {
+  width: 100%;
+  height: 50vh;
+}
+
+.close-icon {
+  color: var(--text-primary);
+}
+
+.button-holder {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

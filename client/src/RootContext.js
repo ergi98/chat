@@ -1,13 +1,13 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from 'react';
 
 // JWT
-import jwt_decode from "jwt-decode";
+import jwt_decode from 'jwt-decode';
 
 // Socket
-import io from "socket.io-client";
+import io from 'socket.io-client';
 
 // Axios
-import { setTokenInterceptor } from "../axios_config/axios-config";
+import { setTokenInterceptor } from '../axios_config/axios-config';
 
 const socket = io.connect(`http://${window.location.hostname}:5050`);
 
@@ -26,7 +26,7 @@ export function ContextProvider({ children }) {
   const [rootContext, setRootContext] = useState(null);
 
   useEffect(() => {
-    const JWT = JSON.parse(localStorage.getItem("jwt"));
+    const JWT = JSON.parse(localStorage.getItem('jwt'));
     if (JWT) {
       let userData = jwt_decode(JWT);
       setTokenInterceptor(JWT);
@@ -34,34 +34,29 @@ export function ContextProvider({ children }) {
         socket: socket,
         jwt: JWT,
         user: userData._id,
-        room: userData.roomId,
+        room: userData.roomId
       });
-      socket.emit("new-member", JWT);
+      socket.emit('new-member', JWT);
     } else {
       updateRootContext({
-        socket: socket,
+        socket: socket
       });
     }
-    console.log(
-      `%c Use effect on RootContext. Has token: ${!!JWT}`,
-      "color: #bada55"
-    );
+    console.log(`%c Use effect on RootContext. Has token: ${!!JWT}`, 'color: #bada55');
   }, []);
 
   function updateRootContext(data) {
     setRootContext((previous) => {
       return {
         ...previous,
-        ...data,
+        ...data
       };
     });
   }
 
   return (
     <RootContext.Provider value={rootContext}>
-      <RootUpdateContext.Provider value={updateRootContext}>
-        {children}
-      </RootUpdateContext.Provider>
+      <RootUpdateContext.Provider value={updateRootContext}>{children}</RootUpdateContext.Provider>
     </RootContext.Provider>
   );
 }

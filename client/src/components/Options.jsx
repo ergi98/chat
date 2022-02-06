@@ -28,8 +28,8 @@ function Options({ isVisible, close }) {
   return (
     <Modal
       title={
-        <div className={styles['modal-header']}>
-          <div className={styles['header-content']}>
+        <div className="modal-header">
+          <div className="header-content">
             <div>Chat Options</div>
             <Button
               onClick={() => close()}

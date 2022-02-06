@@ -2,6 +2,8 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 
+import { readFileSync } from "fs";
+
 import { dirname } from "path";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
@@ -19,7 +21,15 @@ import messageRouter from "./routes/message.routes.js";
 
 import { validateToken, decodeToken } from "./services/token.service.js";
 
+// const options = {
+//   key: readFileSync("./client/certs/key.pem"),
+//   cert: readFileSync("./client/certs/cert.pem"),
+// };
+
+
+
 const app = express();
+// const server = createServer(options, app);
 const server = createServer(app);
 
 mongoose

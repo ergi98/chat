@@ -9,6 +9,7 @@ import GlassDiv from './GlassDiv';
 
 // Context
 import { useRoot } from '../RootContext';
+import CameraModal from './CameraModal';
 
 const { TextArea } = Input;
 
@@ -19,6 +20,9 @@ const Send = React.forwardRef((props, ref) => {
   const [hasEmitted, setHasEmitted] = useState(false);
 
   const rootData = useRoot();
+
+  // Camera Modal
+  const [isCameraModalVisible, setIsCameraModalVisible] = useState(false);
 
   function handleUserInput(event) {
     if (event.target.value !== '' && !hasEmitted) {
@@ -53,12 +57,22 @@ const Send = React.forwardRef((props, ref) => {
     emitStopTyping();
   }
 
+  function toggleCameraModal() {
+    setIsCameraModalVisible((prev) => !prev);
+  }
+
+  function toggleAudioMode() {}
+
+  function submitImage(file) {
+    console.log(file);
+  }
+
   return (
     <GlassDiv ref={ref} className={styles.container}>
       <form onSubmit={submitMessage} className={styles.form}>
         <Button
           className={styles['action-button']}
-          onClick={submitMessage}
+          onClick={toggleCameraModal}
           icon={<CameraOutlined />}
           shape="circle"
           size="large"
@@ -66,7 +80,7 @@ const Send = React.forwardRef((props, ref) => {
         />
         <Button
           className={styles['action-button']}
-          onClick={submitMessage}
+          onClick={toggleAudioMode}
           icon={<AudioOutlined />}
           shape="circle"
           size="large"
@@ -93,6 +107,13 @@ const Send = React.forwardRef((props, ref) => {
           />
         </div>
       </form>
+      {isCameraModalVisible ? (
+        <CameraModal
+          isVisible={isCameraModalVisible}
+          close={toggleCameraModal}
+          onCapture={submitImage}
+        />
+      ) : null}
     </GlassDiv>
   );
 });
