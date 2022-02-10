@@ -15,6 +15,7 @@ import {
 
 function CameraModal({ isVisible, setSelectedImage, close }) {
   const videoRef = useRef(null);
+  const captureCanvas = useRef(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -27,6 +28,7 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
   useEffect(() => {
     let currentVideo = videoRef.current;
     let videoStream;
+
     async function setVideoSource() {
       if (imageBase64) return;
       try {
@@ -131,7 +133,42 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
     setImageBase64('');
   }
 
-  function capturePhoto() {}
+  function capturePhoto() {
+    try {
+      let captureContext = captureCanvas.current.getContext('2d');
+
+      captureCanvas.current.width = videoDimensions.width;
+      captureCanvas.current.height = videoDimensions.height;
+
+      captureContext.drawImage(
+        videoRef.current,
+        0,
+        0,
+        videoDimensions.width,
+        videoDimensions.height
+      );
+      let base64 = captureCanvas.current.toDataURL('image/jpg');
+      let image = formImageFileFromBase64(base64);
+      setImageBase64(base64);
+      setImage(image);
+    } catch (err) {
+      console.log({ err });
+    }
+  }
+
+  function formImageFileFromBase64(base64) {
+    let parts = base64.split(',');
+    let mime = parts[0].match(/:(.*?);/)[1];
+    let bstr = atob(parts[1]);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], 'user-screenshot', { type: mime });
+  }
 
   function selectPhoto() {
     setSelectedImage({
@@ -175,9 +212,12 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
             <ImageTag preview={false} src={imageBase64} />
           </div>
         ) : (
-          <video ref={videoRef}>
-            <source></source>
-          </video>
+          <>
+            <video ref={videoRef}>
+              <source></source>
+            </video>
+            <canvas ref={captureCanvas} style={{ display: 'none' }}></canvas>
+          </>
         )}
       </div>
       <div className={styles['button-holder']}>

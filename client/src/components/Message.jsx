@@ -46,7 +46,7 @@ function Message({ message }) {
       <div className={styles.content}>
         {message.image ? (
           <Image
-            src={`http://localhost:5050/${message.image}`}
+            src={`http://${window.location.hostname}:5050/${message.image}`}
             width={320}
             className={styles['message-image']}
           />
