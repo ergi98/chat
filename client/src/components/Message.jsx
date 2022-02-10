@@ -8,7 +8,7 @@ import { useRoot } from '../RootContext';
 import { motion } from 'framer-motion';
 
 // Antd
-import { Button } from 'antd';
+import { Button, Image } from 'antd';
 
 import { ExclamationCircleFilled, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 
@@ -41,9 +41,18 @@ function Message({ message }) {
       variants={variants}
       className={`${styles.message} ${
         message.sentBy === rootData.user ? styles.mine : styles.theirs
-      } ${message.status === 'error' ? styles.error : ''}`}>
+      } ${message.status === 'error' ? styles.error : ''}`}
+    >
       <div className={styles.content}>
-        <span>{message.text}</span>
+        {message.image ? (
+          <Image
+            src={`http://localhost:5050/${message.image}`}
+            width={320}
+            className={styles['message-image']}
+          />
+        ) : null}
+        {message.image && message.text ? <div className={styles.spacer}></div> : null}
+        {message.text ? <div className={styles['message-text']}>{message.text}</div> : null}
         <div className={styles['bottom-row']}>
           <span className={styles['sent-at']}>
             {message.status === 'sent' ? displayDate(message.sentAt) : ''}

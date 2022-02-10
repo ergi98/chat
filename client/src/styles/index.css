@@ -327,3 +327,8 @@ table {
   align-items: center;
   justify-content: space-between;
 }
+
+
+.ant-image-mask {
+  border-radius: 10px;
+}

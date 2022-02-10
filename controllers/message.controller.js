@@ -1,15 +1,17 @@
-import UserSchema from "../schemas/user.schema.js";
 import MessageSchema from "../schemas/message.schema.js";
 
 import mongoose from "mongoose";
 export default class MessageController {
   static async sendMessage(req, res) {
     try {
-      const message = await MessageSchema.create({
-        text: req.body.text,
+      let payload = req.body.message;
+      let messageData = {
         sentBy: req.headers.user,
         roomId: req.headers.room,
-      });
+      };
+      payload.text && (messageData.text = payload.text);
+      payload.image && (messageData.image = payload.image);
+      const message = await MessageSchema.create(messageData);
       res.status(200).send({ message });
     } catch (err) {
       console.log(err);

@@ -18,12 +18,25 @@ const messageSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
+    default: "",
   },
   resentAt: {
     type: Date,
     required: false,
+  },
+  // Stores the path to the image (if any)
+  image: {
+    type: String,
+    required: false,
+    default: "",
+  },
+  // Stores the path of the voice recording (if any)
+  recording: {
+    type: String,
+    required: false,
+    default: "",
   },
   status: {
     type: String,

@@ -185,17 +185,20 @@ function ChatRoom() {
   }, [chatRef, hasMoreToFetch, lastFetchDate]);
 
   // TODO: Make api call to fetch last 50 messages
-  async function addNewMessage(text) {
-    let tempMessageId = v4(),
-      message = {
-        text,
-        status: 'sending',
-        _id: tempMessageId,
-        sentBy: rootData.user
-      };
+  async function addNewMessage({ text, imageData }) {
+    let tempMessageId = v4();
+    let message = {
+      text,
+      status: 'sending',
+      _id: tempMessageId,
+      sentBy: rootData.user
+    };
+    imageData && (message.image = imageData.imageBase64);
     try {
       setRoomMessages((prev) => [...prev, message]);
-      let data = await sendMessage(text);
+      let payload = { text };
+      imageData && (payload.image = imageData.image);
+      let data = await sendMessage(payload);
       message = data.message;
       setRoomMessages((previous) =>
         previous.map((prev) => {

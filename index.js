@@ -2,8 +2,6 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 
-import { readFileSync } from "fs";
-
 import { dirname } from "path";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
@@ -18,15 +16,15 @@ import mongoose from "mongoose";
 import userRouter from "./routes/user.routes.js";
 import roomRouter from "./routes/room.routes.js";
 import messageRouter from "./routes/message.routes.js";
+import uploadRouter from "./routes/upload.routes.js";
 
+// Services
 import { validateToken, decodeToken } from "./services/token.service.js";
 
 // const options = {
 //   key: readFileSync("./client/certs/key.pem"),
 //   cert: readFileSync("./client/certs/cert.pem"),
 // };
-
-
 
 const app = express();
 // const server = createServer(options, app);
@@ -47,6 +45,7 @@ const __dirname = dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
+app.use('/images', express.static('images'))
 app.use("/", async (req, res, next) => {
   try {
     if (
@@ -81,6 +80,7 @@ app.use("/", async (req, res, next) => {
 app.use("/", userRouter);
 app.use("/", roomRouter);
 app.use("/", messageRouter);
+app.use("/", uploadRouter);
 
 io.on("connection", (socket) => {
   socket.on("new-member", (jwt) => {

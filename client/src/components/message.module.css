@@ -1,8 +1,7 @@
 .message {
   position: relative;
 
-  max-width: 60vw;
-  min-width: 90px;
+  max-width: minmax(fit-content, 80vw);
   width: fit-content;
   border-radius: 12px;
   font-size: 16px;
@@ -17,6 +16,8 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   word-break: break-all;
 }
 
@@ -25,6 +26,14 @@
   margin-left: auto;
   margin-right: 5px;
 }
+
+/* .mine .message-text {
+  align-self: flex-end;
+}
+
+.theirs .message-text {
+  align-self: flex-start;
+} */
 
 .theirs {
   background-color: var(--message-dark);
@@ -65,4 +74,13 @@
 
 .error {
   background-color: var(--error) !important;
+}
+
+.message-image {
+  border-radius: 10px;
+  border: 1px solid var(--light-bg);
+}
+
+.spacer {
+  height: 8px;
 }

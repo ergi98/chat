@@ -2,22 +2,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './camera-modal.module.css';
 
 // Antd
-import { Modal, Button, Space, Upload } from 'antd';
+import { Modal, Button, Space, Upload, Image as ImageTag } from 'antd';
 
 // Icons
-import { CloseOutlined, CameraOutlined, FileImageOutlined, RedoOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  CameraOutlined,
+  FileImageOutlined,
+  RedoOutlined,
+  CheckOutlined
+} from '@ant-design/icons';
 
-function CameraModal({ isVisible, close }) {
+function CameraModal({ isVisible, setSelectedImage, close }) {
   const videoRef = useRef(null);
 
-  const [facingMode, setFacingMode] = useState('user');
+  const [loading, setLoading] = useState(false);
+
   const [image, setImage] = useState('');
+  const [imageBase64, setImageBase64] = useState('');
+
+  const [facingMode, setFacingMode] = useState('user');
   const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     let currentVideo = videoRef.current;
     let videoStream;
     async function setVideoSource() {
+      if (imageBase64) return;
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           let deviceWidth = window.innerWidth;
@@ -48,11 +59,11 @@ function CameraModal({ isVisible, close }) {
     videoRef.current && setVideoSource();
 
     return () => {
-      videoStream.getTracks().forEach((track) => {
+      videoStream?.getTracks()?.forEach((track) => {
         if (track.readyState == 'live' && track.kind === 'video') track.stop();
       });
     };
-  }, [facingMode, videoRef]);
+  }, [facingMode, imageBase64, videoRef]);
 
   function flipCamera() {
     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
@@ -60,10 +71,15 @@ function CameraModal({ isVisible, close }) {
 
   async function uploadPhoto(event) {
     try {
+      if (loading) return;
+      setLoading(true);
       let file = await shrinkFileSize(event.file.originFileObj);
-      console.log(file);
+      setImage(event.file.originFileObj);
+      setImageBase64(file);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -74,27 +90,34 @@ function CameraModal({ isVisible, close }) {
         let resizedImage;
         reader.onload = () => {
           const image = new Image();
+          image.src = reader.result;
           image.onload = () => {
             const canvas = document.createElement('canvas');
-            let maxSize = 1200;
+
             let width = image.width;
             let height = image.height;
 
-            if (width > height && width > maxSize) {
-              height *= maxSize / width;
-              width = maxSize;
-            } else if (height > maxSize) {
-              width *= maxSize / height;
-              height = maxSize;
+            if (width > height) {
+              if (width > videoDimensions.width) {
+                height *= videoDimensions.width / width;
+                width = videoDimensions.width;
+              }
+            } else if (height > videoDimensions.height) {
+              width *= videoDimensions.height / height;
+              height = videoDimensions.height;
             }
 
             canvas.width = width;
             canvas.height = height;
 
-            canvas.getContext('2d').drawImage(0, 0, width, height);
-            resizedImage = canvas.toDataURL('image/jpeg');
+            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+            resizedImage = canvas.toDataURL();
             resolve(resizedImage);
           };
+        };
+        reader.onerror = (err) => {
+          reject(err);
+          console.log(err);
         };
         reader.readAsDataURL(file);
       } catch (err) {
@@ -104,12 +127,18 @@ function CameraModal({ isVisible, close }) {
     });
   }
 
-  function clearPreviousPhoto() {}
+  function clearPreviousPhoto() {
+    setImageBase64('');
+  }
 
   function capturePhoto() {}
 
-  function captureOrClearPhoto() {
-    image ? clearPreviousPhoto() : capturePhoto();
+  function selectPhoto() {
+    setSelectedImage({
+      image,
+      imageBase64
+    });
+    close();
   }
 
   return (
@@ -138,10 +167,13 @@ function CameraModal({ isVisible, close }) {
         background: 'var(--overlay)'
       }}
       onCancel={() => close()}
-      destroyOnClose={true}>
+      destroyOnClose={true}
+    >
       <div className={styles['video-container']}>
-        {image ? (
-          <canvas></canvas>
+        {imageBase64 ? (
+          <div className={styles['image-preview']}>
+            <ImageTag preview={false} src={imageBase64} />
+          </div>
         ) : (
           <video ref={videoRef}>
             <source></source>
@@ -150,17 +182,37 @@ function CameraModal({ isVisible, close }) {
       </div>
       <div className={styles['button-holder']}>
         <Space>
-          <Upload onChange={uploadPhoto} showUploadList={false} accept="image/*" maxCount={1}>
-            <Button type="text" shape="circle">
-              <FileImageOutlined className={styles['close-icon']} />
-            </Button>
-          </Upload>
-          <Button onClick={captureOrClearPhoto} shape="circle" type="primary" size="large">
-            {image ? <CloseOutlined /> : <CameraOutlined />}
-          </Button>
-          <Button onClick={flipCamera} type="text">
-            <RedoOutlined className={styles['close-icon']} />
-          </Button>
+          {imageBase64 ? (
+            <>
+              <Button onClick={clearPreviousPhoto} type="text" shape="circle">
+                <CloseOutlined className={styles['close-icon']} />
+              </Button>
+              <Button onClick={selectPhoto} shape="circle" type="primary" size="large">
+                <CheckOutlined />
+              </Button>
+              <div style={{ width: '32px', height: '32px' }}></div>
+            </>
+          ) : (
+            <>
+              <Upload
+                onChange={uploadPhoto}
+                showUploadList={false}
+                accept="image/*"
+                action="#"
+                maxCount={1}
+              >
+                <Button type="text" shape="circle">
+                  <FileImageOutlined className={styles['close-icon']} />
+                </Button>
+              </Upload>
+              <Button onClick={capturePhoto} shape="circle" type="primary" size="large">
+                <CameraOutlined />
+              </Button>
+              <Button onClick={flipCamera} shape="circle" type="text">
+                <RedoOutlined className={styles['close-icon']} />
+              </Button>
+            </>
+          )}
         </Space>
       </div>
     </Modal>

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import styles from './send.module.css';
 
-import { Input, Button } from 'antd';
-import { SendOutlined, AudioOutlined, CameraOutlined } from '@ant-design/icons';
+import { Input, Button, Image } from 'antd';
+import { SendOutlined, AudioOutlined, CameraOutlined, CloseOutlined } from '@ant-design/icons';
 
 // Components
 import GlassDiv from './GlassDiv';
@@ -18,6 +18,11 @@ const Send = React.forwardRef((props, ref) => {
 
   const inputRef = useRef(null);
   const [hasEmitted, setHasEmitted] = useState(false);
+
+  const [imageData, setImageData] = useState({
+    image: null,
+    imageBase64: null
+  });
 
   const rootData = useRoot();
 
@@ -52,8 +57,20 @@ const Send = React.forwardRef((props, ref) => {
   async function submitMessage(event) {
     event.preventDefault();
     inputRef.current.focus();
-    if (typeof userInput === 'string' && userInput !== '') await props.addMessage(userInput);
+    if (
+      (typeof userInput === 'string' && userInput !== '') ||
+      (imageData.image !== null && imageData.imageBase64 !== null)
+    ) {
+      let message = { text: userInput };
+      if (imageData.image && imageData.imageBase64) {
+        message.imageData = imageData;
+      }
+      await props.addMessage(message);
+    }
     setUserInput(null);
+    if (imageData.image && imageData.imageBase64) {
+      setSelectedImage();
+    }
     emitStopTyping();
   }
 
@@ -63,12 +80,24 @@ const Send = React.forwardRef((props, ref) => {
 
   function toggleAudioMode() {}
 
-  function submitImage(file) {
-    console.log(file);
+  function setSelectedImage(imageData = { imageBase64: null, image: null }) {
+    setImageData(imageData);
   }
 
   return (
     <GlassDiv ref={ref} className={styles.container}>
+      {imageData.imageBase64 ? (
+        <div className={styles['image-container']}>
+          <Image height={150} preview={false} src={imageData.imageBase64}></Image>
+          <Button
+            onClick={setSelectedImage}
+            className={styles['remove-image']}
+            icon={<CloseOutlined className={styles['close-icon']} />}
+            shape="circle"
+            type="text"
+          />
+        </div>
+      ) : null}
       <form onSubmit={submitMessage} className={styles.form}>
         <Button
           className={styles['action-button']}
@@ -109,9 +138,9 @@ const Send = React.forwardRef((props, ref) => {
       </form>
       {isCameraModalVisible ? (
         <CameraModal
+          setSelectedImage={setSelectedImage}
           isVisible={isCameraModalVisible}
           close={toggleCameraModal}
-          onCapture={submitImage}
         />
       ) : null}
     </GlassDiv>
