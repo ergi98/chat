@@ -65,13 +65,11 @@ const Send = React.forwardRef((props, ref) => {
       if (imageData.image && imageData.imageBase64) {
         message.imageData = imageData;
       }
+      setUserInput(null);
+      if (imageData.image && imageData.imageBase64) setSelectedImage();
+      emitStopTyping();
       await props.addMessage(message);
     }
-    setUserInput(null);
-    if (imageData.image && imageData.imageBase64) {
-      setSelectedImage();
-    }
-    emitStopTyping();
   }
 
   function toggleCameraModal() {
