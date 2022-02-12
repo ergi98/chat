@@ -167,7 +167,7 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
       u8arr[n] = bstr.charCodeAt(n);
     }
 
-    return new File([u8arr], 'user-screenshot', { type: mime });
+    return new File([u8arr], 'user-screenshot.jpg', { type: mime });
   }
 
   function selectPhoto() {
