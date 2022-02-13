@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import styles from './send.module.css';
 
-import { Input, Button, Image } from 'antd';
+import { Input, Button, Image, Tooltip } from 'antd';
 import { SendOutlined, AudioOutlined, CameraOutlined, CloseOutlined } from '@ant-design/icons';
 
 // Components
@@ -13,11 +13,19 @@ import CameraModal from './CameraModal';
 
 const { TextArea } = Input;
 
-const Send = React.forwardRef((props, ref) => {
-  const [userInput, setUserInput] = useState(null);
+let audioRecorder;
 
+const Send = React.forwardRef((props, ref) => {
   const inputRef = useRef(null);
+
+  const [userInput, setUserInput] = useState(null);
   const [hasEmitted, setHasEmitted] = useState(false);
+
+  const [recordingData, setRecordingData] = useState({
+    chunks: [],
+    audioUrl: '',
+    recording: false
+  });
 
   const [imageData, setImageData] = useState({
     image: null,
@@ -28,6 +36,54 @@ const Send = React.forwardRef((props, ref) => {
 
   // Camera Modal
   const [isCameraModalVisible, setIsCameraModalVisible] = useState(false);
+
+  useEffect(() => {
+    async function startRecording() {
+      try {
+        if (!recordingData.recording) return;
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          let audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+          });
+          audioRecorder = new MediaRecorder(audioStream);
+          audioRecorder.start(1000);
+          audioRecorder.ondataavailable = storeAudioChunk;
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    function storeAudioChunk(event) {
+      setRecordingData((prev) => {
+        return { ...prev, chunks: [...prev.chunks, event.data] };
+      });
+    }
+
+    startRecording();
+
+    return () => {
+      if (audioRecorder) {
+        audioRecorder.stop();
+        audioRecorder = null;
+      }
+    };
+  }, [recordingData.recording]);
+
+  useEffect(() => {
+    function storeRecording() {
+      if (Array.isArray(recordingData.chunks) && recordingData.chunks?.length) {
+        const audioBlob = new Blob(recordingData.chunks, { type: 'audio/ogg; codecs=opus' });
+        setRecordingData((prev) => {
+          return {
+            ...prev,
+            audioUrl: window.URL.createObjectURL(audioBlob)
+          };
+        });
+      }
+    }
+    audioRecorder && (audioRecorder.onstop = storeRecording);
+  }, [recordingData.chunks]);
 
   function handleUserInput(event) {
     if (event.target.value !== '' && !hasEmitted) {
@@ -56,7 +112,7 @@ const Send = React.forwardRef((props, ref) => {
 
   async function submitMessage(event) {
     event.preventDefault();
-    inputRef.current.focus();
+    if (typeof userInput === 'string' && userInput !== '') inputRef.current.focus();
     if (
       (typeof userInput === 'string' && userInput !== '') ||
       (imageData.image !== null && imageData.imageBase64 !== null)
@@ -69,6 +125,9 @@ const Send = React.forwardRef((props, ref) => {
       if (imageData.image && imageData.imageBase64) setSelectedImage();
       emitStopTyping();
       await props.addMessage(message);
+    } else if (recordingData.audioUrl !== '') {
+      let message = { audio: recordingData.audioUrl };
+      await props.addMessage(message);
     }
   }
 
@@ -76,11 +135,45 @@ const Send = React.forwardRef((props, ref) => {
     setIsCameraModalVisible((prev) => !prev);
   }
 
-  function toggleAudioMode() {}
+  function toggleAudioMode() {
+    setRecordingData((prev) => {
+      return {
+        ...prev,
+        recording: !prev.recording,
+        chunks: !prev.recording ? [] : prev.chunks
+      };
+    });
+  }
+
+  const getRecordingLength = useMemo(() => {
+    let chunkLength = recordingData.chunks.length;
+    let min = 0,
+      sec = 0;
+    while (chunkLength > 0) {
+      // 60sec = 1min
+      if (chunkLength > 60) {
+        min++;
+        chunkLength -= 60;
+      } else {
+        sec++;
+        chunkLength -= 1;
+      }
+    }
+    sec = sec.toString().padStart(2, '0');
+    min = min.toString().padStart(2, '0');
+    return `${min}:${sec}`;
+  }, [recordingData.chunks.length]);
 
   function setSelectedImage(imageData = { imageBase64: null, image: null }) {
     setImageData(imageData);
   }
+
+  const getPlaceholderText = useMemo(() => {
+    let msg = 'Write something...';
+    if (recordingData.recording) msg = 'Recording...';
+    else if (!recordingData.recording && recordingData.chunks.length) msg = 'Audio Recorded!';
+    return msg;
+  }, [recordingData.recording, recordingData.chunks]);
 
   return (
     <GlassDiv ref={ref} className={styles.container}>
@@ -101,29 +194,37 @@ const Send = React.forwardRef((props, ref) => {
           className={styles['action-button']}
           onClick={toggleCameraModal}
           icon={<CameraOutlined />}
+          disabled={recordingData.chunks.length || recordingData.recording}
           shape="circle"
           size="large"
           type="text"
         />
-        <Button
-          className={styles['action-button']}
-          onClick={toggleAudioMode}
-          icon={<AudioOutlined />}
-          shape="circle"
-          size="large"
-          type="text"
-        />
+        <Tooltip
+          title={getRecordingLength}
+          visible={recordingData.chunks.length || recordingData.recording}
+          color={'blue'}
+        >
+          <Button
+            className={styles['action-button']}
+            onClick={toggleAudioMode}
+            type={recordingData.recording ? 'primary' : 'text'}
+            icon={<AudioOutlined />}
+            shape="circle"
+            size="large"
+          />
+        </Tooltip>
         <div className={styles['input-container']}>
           <TextArea
             ref={inputRef}
-            onFocus={props.scrollToBottom}
-            value={userInput}
-            onPressEnter={submitMessage}
-            onChange={handleUserInput}
-            autoSize={{ minRows: 1, maxRows: 6 }}
             bordered={false}
+            value={userInput}
+            onChange={handleUserInput}
+            onPressEnter={submitMessage}
+            onFocus={props.scrollToBottom}
+            placeholder={getPlaceholderText}
             className={styles['input-field']}
-            placeholder="Write something..."
+            autoSize={{ minRows: 1, maxRows: 6 }}
+            disabled={recordingData.chunks.length || recordingData.recording}
           />
           <Button
             onClick={submitMessage}

@@ -47,8 +47,9 @@ function Message({ message }) {
         {message.image ? (
           <Image
             src={`http://${window.location.hostname}:5050/${message.image}`}
-            width={320}
             className={styles['message-image']}
+            preview={false}
+            width={320}
           />
         ) : null}
         {message.image && message.text ? <div className={styles.spacer}></div> : null}
