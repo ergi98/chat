@@ -7,7 +7,7 @@ export default class UploadController {
     } catch (err) {
       res
         .status(404)
-        .send({ message: "An error occured while trying to store the image!" });
+        .send({ message: "An error occurred while trying to store the image!" });
     }
   }
 
@@ -19,7 +19,7 @@ export default class UploadController {
     } catch (err) {
       res
         .status(404)
-        .send({ message: "An error occured while trying to store the image!" });
+        .send({ message: "An error occurred while trying to store the image!" });
     }
   }
 }
