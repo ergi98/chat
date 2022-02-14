@@ -1,7 +1,7 @@
 import express from "express";
 // import multer from "multer";
 
-import Multer from "../middleware/multer.js";
+import { imageUpload, audioUpload } from "../middleware/multer.js";
 
 const router = express.Router();
 
@@ -12,7 +12,10 @@ import UploadController from "../controllers/upload.controller.js";
 
 router
   .route("/upload-image")
-  .post(Multer.single("image"), UploadController.uploadImage);
+  .post(imageUpload.single("image"), UploadController.uploadImage);
+router
+  .route("/upload-audio")
+  .post(audioUpload.single("audio"), UploadController.uploadAudio);
 
 // router.route("/get-user").get(UploadController.uploadVoiceRecording)
 

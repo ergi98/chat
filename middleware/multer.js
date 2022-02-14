@@ -1,8 +1,8 @@
 import multer from "multer";
 import * as fs from "fs";
-// import * as fs from "fs/promises";
 
-const storage = multer.diskStorage({
+// IMAGE
+const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     fs.access("images/", (err) => {
       if (err) {
@@ -15,7 +15,22 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+const imageUpload = multer({ storage: imageStorage });
 
-const upload = multer({ storage: storage });
+// AUDIO
+const audioStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    fs.access("audio/", (err) => {
+      if (err) {
+        fs.mkdirSync("audio");
+      }
+      cb(null, "audio/");
+    });
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const audioUpload = multer({ storage: audioStorage });
 
-export default upload;
+export { imageUpload, audioUpload };

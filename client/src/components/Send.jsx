@@ -2,18 +2,46 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import styles from './send.module.css';
 
 import { Input, Button, Image, Tooltip } from 'antd';
-import { SendOutlined, AudioOutlined, CameraOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  SendOutlined,
+  AudioOutlined,
+  CameraOutlined,
+  CloseOutlined,
+  AudioMutedOutlined
+} from '@ant-design/icons';
 
 // Components
 import GlassDiv from './GlassDiv';
+import CameraModal from './CameraModal';
 
 // Context
 import { useRoot } from '../RootContext';
-import CameraModal from './CameraModal';
 
 const { TextArea } = Input;
 
 let audioRecorder;
+
+function getSupportedMime() {
+  const types = [
+    'audio/mpeg',
+    'audio/webm',
+    'audio/webm;codecs=opus',
+    'audio/ogg',
+    'audio/opus',
+    'audio/wav',
+    'audio/aac',
+    'audio/3gpp',
+    'audio/3gpp2',
+    'audio/midi',
+    'audio/x-midi'
+  ];
+
+  for (let type of types) {
+    if (MediaRecorder.isTypeSupported(type)) return type;
+  }
+}
+
+const supportedMime = getSupportedMime();
 
 const Send = React.forwardRef((props, ref) => {
   const inputRef = useRef(null);
@@ -23,7 +51,7 @@ const Send = React.forwardRef((props, ref) => {
 
   const [recordingData, setRecordingData] = useState({
     chunks: [],
-    audioUrl: '',
+    audioFile: '',
     recording: false
   });
 
@@ -45,7 +73,13 @@ const Send = React.forwardRef((props, ref) => {
           let audioStream = await navigator.mediaDevices.getUserMedia({
             audio: true
           });
-          audioRecorder = new MediaRecorder(audioStream);
+          if (!supportedMime) throw new Error('No mime support');
+          audioRecorder = new MediaRecorder(audioStream, {
+            mimeType: supportedMime,
+            audioBitsPerSecond: 128000,
+            audioBitrateMode: 'constant'
+          });
+
           audioRecorder.start(1000);
           audioRecorder.ondataavailable = storeAudioChunk;
         }
@@ -73,11 +107,13 @@ const Send = React.forwardRef((props, ref) => {
   useEffect(() => {
     function storeRecording() {
       if (Array.isArray(recordingData.chunks) && recordingData.chunks?.length) {
-        const audioBlob = new Blob(recordingData.chunks, { type: 'audio/ogg; codecs=opus' });
+        const audioBlob = new Blob(recordingData.chunks, { type: supportedMime });
         setRecordingData((prev) => {
           return {
             ...prev,
-            audioUrl: window.URL.createObjectURL(audioBlob)
+            audioFile: new File([audioBlob], `recording.mp3`, {
+              type: supportedMime
+            })
           };
         });
       }
@@ -112,21 +148,29 @@ const Send = React.forwardRef((props, ref) => {
 
   async function submitMessage(event) {
     event.preventDefault();
-    if (typeof userInput === 'string' && userInput !== '') inputRef.current.focus();
-    if (
-      (typeof userInput === 'string' && userInput !== '') ||
-      (imageData.image !== null && imageData.imageBase64 !== null)
-    ) {
-      let message = { text: userInput };
-      if (imageData.image && imageData.imageBase64) {
-        message.imageData = imageData;
+
+    // Conditions
+    let sendingText = typeof userInput === 'string' && userInput !== '';
+    let sendingImage = imageData.image !== null && imageData.imageBase64 !== null;
+    let sendingAudio = recordingData.audioFile !== '';
+
+    if (sendingText) inputRef.current.focus();
+
+    if (sendingText || sendingImage || sendingAudio) {
+      let message = {};
+
+      // Populating
+      sendingText && (message.text = userInput);
+      sendingImage && (message.imageData = imageData);
+      sendingAudio && (message.audio = recordingData.audioFile);
+
+      // Cleanup
+      sendingImage && setSelectedImage();
+      if (sendingText) {
+        setUserInput(null);
+        emitStopTyping();
       }
-      setUserInput(null);
-      if (imageData.image && imageData.imageBase64) setSelectedImage();
-      emitStopTyping();
-      await props.addMessage(message);
-    } else if (recordingData.audioUrl !== '') {
-      let message = { audio: recordingData.audioUrl };
+      sendingAudio && clearAudioRecording();
       await props.addMessage(message);
     }
   }
@@ -141,6 +185,16 @@ const Send = React.forwardRef((props, ref) => {
         ...prev,
         recording: !prev.recording,
         chunks: !prev.recording ? [] : prev.chunks
+      };
+    });
+  }
+
+  function clearAudioRecording() {
+    setRecordingData((prev) => {
+      return {
+        ...prev,
+        chunks: [],
+        audioFile: ''
       };
     });
   }
@@ -168,10 +222,23 @@ const Send = React.forwardRef((props, ref) => {
     setImageData(imageData);
   }
 
+  const isRecordingAudio = useMemo(() => {
+    let chunkLength = recordingData.chunks.length;
+    let recording = recordingData.recording;
+    return recording || (!recording && chunkLength);
+  }, [recordingData.recording, recordingData.chunks.length]);
+
+  const hasPendingAudio = useMemo(() => {
+    let chunkLength = recordingData.chunks.length;
+    let recording = recordingData.recording;
+    return !recording && chunkLength;
+  }, [recordingData.chunks.length, recordingData.recording]);
+
   const getPlaceholderText = useMemo(() => {
     let msg = 'Write something...';
     if (recordingData.recording) msg = 'Recording...';
-    else if (!recordingData.recording && recordingData.chunks.length) msg = 'Audio Recorded!';
+    else if (!recordingData.recording && recordingData.chunks.length)
+      msg = 'Tap button to send recorded audio...';
     return msg;
   }, [recordingData.recording, recordingData.chunks]);
 
@@ -194,21 +261,17 @@ const Send = React.forwardRef((props, ref) => {
           className={styles['action-button']}
           onClick={toggleCameraModal}
           icon={<CameraOutlined />}
-          disabled={recordingData.chunks.length || recordingData.recording}
+          disabled={isRecordingAudio}
           shape="circle"
           size="large"
           type="text"
         />
-        <Tooltip
-          title={getRecordingLength}
-          visible={recordingData.chunks.length || recordingData.recording}
-          color={'blue'}
-        >
+        <Tooltip title={getRecordingLength} visible={isRecordingAudio} color={'blue'}>
           <Button
             className={styles['action-button']}
-            onClick={toggleAudioMode}
+            onClick={hasPendingAudio ? clearAudioRecording : toggleAudioMode}
             type={recordingData.recording ? 'primary' : 'text'}
-            icon={<AudioOutlined />}
+            icon={hasPendingAudio ? <AudioMutedOutlined /> : <AudioOutlined />}
             shape="circle"
             size="large"
           />
@@ -224,7 +287,7 @@ const Send = React.forwardRef((props, ref) => {
             placeholder={getPlaceholderText}
             className={styles['input-field']}
             autoSize={{ minRows: 1, maxRows: 6 }}
-            disabled={recordingData.chunks.length || recordingData.recording}
+            disabled={isRecordingAudio}
           />
           <Button
             onClick={submitMessage}

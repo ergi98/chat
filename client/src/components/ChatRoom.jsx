@@ -184,28 +184,31 @@ function ChatRoom() {
     };
   }, [chatRef, hasMoreToFetch, lastFetchDate]);
 
-  // TODO: Make api call to fetch last 50 messages
-  async function addNewMessage({ text, imageData }) {
+  async function addNewMessage({ text, imageData, audio }) {
     let tempMessageId = v4();
-    let message = {
-      text,
-      status: 'sending',
-      _id: tempMessageId,
-      sentBy: rootData.user
-    };
-    imageData && (message.image = imageData.imageBase64);
     try {
+      let message = {
+        status: 'sending',
+        _id: tempMessageId,
+        sentBy: rootData.user
+      };
+
+      text && (message.text = text);
+      audio && (message.audio = audio);
+      imageData && (message.image = imageData.imageBase64);
+
       setRoomMessages((prev) => [...prev, message]);
-      let payload = { text };
-      imageData && (payload.image = imageData.image);
-      let data = await sendMessage(payload);
+
+      let data = await sendMessage(message);
       message = data.message;
+
+      rootData.socket.emit('sent-message', message);
+
       setRoomMessages((previous) =>
         previous.map((prev) => {
           return prev._id === tempMessageId ? message : prev;
         })
       );
-      message && rootData.socket.emit('sent-message', message);
     } catch (err) {
       setRoomMessages((previous) =>
         previous.map((prev) => {

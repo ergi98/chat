@@ -1,12 +1,19 @@
 import { AxiosInstance } from '../../axios_config/axios-config';
-import { uploadImage } from './upload';
+import { uploadImage, uploadAudio } from './upload';
 
-export async function sendMessage({ text, image }) {
+export async function sendMessage({ text, image, audio }) {
   try {
-    let imageResult,
-      message = { text };
-    image && (imageResult = await uploadImage(image));
-    imageResult && (message.image = imageResult.data.file.path);
+    let message = { text };
+    // Image Upload
+    if (image) {
+      let imageResult = await uploadImage(image);
+      imageResult && (message.image = imageResult.data.file.path);
+    }
+    // Audio Upload
+    if (audio) {
+      let audioResult = await uploadAudio(audio);
+      audioResult && (message.audio = audioResult.data.file.path);
+    }
     let result = await AxiosInstance.post('/send-message', { message });
     return {
       message: result.data.message
@@ -25,7 +32,6 @@ export async function getMessagesByChunks(lastFetchDate) {
     let result = await AxiosInstance.get('/get-messages', {
       params: { lastFetchDate }
     });
-    console.log(result);
     return {
       messages: result.data.messages,
       date: result.data.date
