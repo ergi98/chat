@@ -32,8 +32,7 @@ const messageSchema = new mongoose.Schema({
     required: false,
     default: "",
   },
-  // Stores the path of the voice recording (if any)
-  recording: {
+  audio: {
     type: String,
     required: false,
     default: "",

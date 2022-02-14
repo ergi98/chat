@@ -186,13 +186,12 @@ function ChatRoom() {
 
   async function addNewMessage({ text, imageData, audio }) {
     let tempMessageId = v4();
+    let message = {
+      status: 'sending',
+      _id: tempMessageId,
+      sentBy: rootData.user
+    };
     try {
-      let message = {
-        status: 'sending',
-        _id: tempMessageId,
-        sentBy: rootData.user
-      };
-
       text && (message.text = text);
       audio && (message.audio = audio);
       imageData && (message.image = imageData.imageBase64);
@@ -201,7 +200,7 @@ function ChatRoom() {
 
       let data = await sendMessage({
         ...message,
-        image: imageData.image
+        image: imageData?.image
       });
 
       message = data.message;
@@ -214,6 +213,7 @@ function ChatRoom() {
         })
       );
     } catch (err) {
+      console.log(err);
       setRoomMessages((previous) =>
         previous.map((prev) => {
           return prev._id === tempMessageId ? { ...message, status: 'error' } : prev;

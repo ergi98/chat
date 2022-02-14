@@ -171,6 +171,8 @@ const Send = React.forwardRef((props, ref) => {
         emitStopTyping();
       }
       sendingAudio && clearAudioRecording();
+
+      console.log('SEND', message);
       await props.addMessage(message);
     }
   }
