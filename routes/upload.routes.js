@@ -8,8 +8,6 @@ const router = express.Router();
 // Controllers
 import UploadController from "../controllers/upload.controller.js";
 
-// const upload = multer({ dest: "~/user-uploads/images/" });
-
 router
   .route("/upload-image")
   .post(imageUpload.single("image"), UploadController.uploadImage);

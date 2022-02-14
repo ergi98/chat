@@ -15,7 +15,6 @@ const imageStorage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-const imageUpload = multer({ storage: imageStorage });
 
 // AUDIO
 const audioStorage = multer.diskStorage({
@@ -31,6 +30,7 @@ const audioStorage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-const audioUpload = multer({ storage: audioStorage });
 
-export { imageUpload, audioUpload };
+export const imageUpload = multer({ storage: imageStorage });
+export const audioUpload = multer({ storage: audioStorage });
+

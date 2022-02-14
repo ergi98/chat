@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react';
 import styles from './chat-room.module.css';
 
 // Components
@@ -106,7 +106,7 @@ function ChatRoom() {
     };
   }, [rootData, hasSetListeners, scrollToBottom]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let observer, localSendRef, localChatRef;
 
     function attachResizeObserver(expandingElRef, shrinkingElRef) {
@@ -131,7 +131,7 @@ function ChatRoom() {
     };
   }, [sendRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     function setGlobalVh() {
       let vh = window.innerHeight * 0.01;
       let root = document.querySelector(':root');
@@ -199,7 +199,11 @@ function ChatRoom() {
 
       setRoomMessages((prev) => [...prev, message]);
 
-      let data = await sendMessage(message);
+      let data = await sendMessage({
+        ...message,
+        image: imageData.image
+      });
+
       message = data.message;
 
       rootData.socket.emit('sent-message', message);

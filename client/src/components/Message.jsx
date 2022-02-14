@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styles from './message.module.css';
 
 // Context
@@ -34,48 +34,86 @@ function Message({ message }) {
     }
   };
 
+  const messageImage = useMemo(() => {
+    if (message.audio || !message.image) return null;
+
+    return (
+      <Image
+        src={`http://${window.location.hostname}:5050/${message.image}`}
+        className={styles['message-image']}
+        preview={false}
+        width={320}
+      />
+    );
+  }, [message.image, message.audio]);
+
+  const messageText = useMemo(() => {
+    if (message.audio || !message.text) return null;
+    return <div className={styles['message-text']}>{message.text}</div>;
+  }, [message.text, message.audio]);
+
+  const spacer = useMemo(() => {
+    if (message.audio || !(message.image && message.text)) return null;
+    return <div className={styles.spacer}></div>;
+  }, [message.text, message.image, message.audio]);
+
+  const messageDate = useMemo(
+    () => (message.status === 'sent' ? displayDate(message.sentAt) : ''),
+    [message.sentAt, message.status]
+  );
+
+  const messageStatus = useMemo(() => {
+    let icon = null;
+    switch (message.status) {
+      case 'sent':
+        icon = <CheckOutlined />;
+        break;
+      case 'sending':
+        icon = <LoadingOutlined />;
+        break;
+    }
+    return icon;
+  }, [message.status]);
+
+  const resendOption = useMemo(() => {
+    if (message.sentBy === rootData.user && message.status === 'error')
+      <Button
+        className={styles['resend-button']}
+        icon={<ExclamationCircleFilled className={styles['resend-icon']} />}
+        shape="round"
+        size="large"
+        type="text"
+        danger
+      />;
+    else return null;
+  }, [message.sentBy, message.status, rootData.user]);
+
+  const messageStyles = useMemo(() => {
+    let msgStyles = styles.message;
+    message.sentBy === rootData.user
+      ? (msgStyles += ` ${styles.mine}`)
+      : (msgStyles += ` ${styles.theirs}`);
+    message.status === 'error' && (msgStyles += ` ${styles.error}`);
+    return msgStyles;
+  }, [message.sentBy, rootData.user, message.status]);
+
+  const messageAudio = useMemo(() => {
+    if (!message.audio) return null;
+    return <span>hello im an audio</span>;
+  }, [message.audio]);
+
   return (
-    <motion.div
-      initial="initial"
-      animate="final"
-      variants={variants}
-      className={`${styles.message} ${
-        message.sentBy === rootData.user ? styles.mine : styles.theirs
-      } ${message.status === 'error' ? styles.error : ''}`}
-    >
+    <motion.div initial="initial" animate="final" variants={variants} className={messageStyles}>
       <div className={styles.content}>
-        {message.image ? (
-          <Image
-            src={`http://${window.location.hostname}:5050/${message.image}`}
-            className={styles['message-image']}
-            preview={false}
-            width={320}
-          />
-        ) : null}
-        {message.image && message.text ? <div className={styles.spacer}></div> : null}
-        {message.text ? <div className={styles['message-text']}>{message.text}</div> : null}
+        {messageImage}
+        {spacer}
+        {messageText}
+        {messageAudio}
         <div className={styles['bottom-row']}>
-          <span className={styles['sent-at']}>
-            {message.status === 'sent' ? displayDate(message.sentAt) : ''}
-          </span>
-          {/* className={styles["check-svg"]} */}
-          {message.status === 'sent' ? (
-            <CheckOutlined />
-          ) : message.status === 'sending' ? (
-            <LoadingOutlined />
-          ) : null}
+          <span className={styles['sent-at']}>{messageDate}</span>
+          {messageStatus}
         </div>
-        {/* Resend icon */}
-        {message.sentBy === rootData.user && message.status === 'error' ? (
-          <Button
-            className={styles['resend-button']}
-            icon={<ExclamationCircleFilled className={styles['resend-icon']} />}
-            shape="round"
-            size="large"
-            type="text"
-            danger
-          />
-        ) : null}
+        {resendOption}
       </div>
     </motion.div>
   );

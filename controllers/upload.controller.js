@@ -1,6 +1,6 @@
 export default class UploadController {
   static async uploadImage(req, res) {
-    try {
+    try {   
       res
         .status(200)
         .send({ message: "File successfully uploaded!", file: req.file });
