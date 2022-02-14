@@ -46,6 +46,8 @@ const __dirname = dirname(__filename);
 app.use(cors());
 app.use(express.json());
 app.use('/images', express.static('images'))
+app.use('/audio', express.static('audio'))
+
 app.use("/", async (req, res, next) => {
   try {
     if (
