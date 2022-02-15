@@ -106,13 +106,6 @@ function Message({ message }) {
       canvas.width = window.innerWidth * 0.5 > 350 ? 350 : window.innerWidth * 0.5;
       // const canvasContext = canvas.getContext('2d');
 
-      console.log(`http://${window.location.hostname}:5050/${message.audio}`);
-      // Audio
-      const audio = await fetch(`http://${window.location.hostname}:5050/${message.audio}`);
-      const audioBuffer = await audio.arrayBuffer();
-      const audioContext = new AudioContext();
-      audioContext.decodeAudioData(audioBuffer);
-
       // let filteredAudioData = filterData(audioBuffer);
 
       // console.log(filteredAudioData);
@@ -140,23 +133,6 @@ function Message({ message }) {
       //   x += barWidth;
       // }
     }
-
-    // function filterData(audioBuffer) {
-    //   const rawData = audioBuffer.getChannelData(0);
-    //   const samples = 70;
-    //   const blockSize = Math.floor(rawData.length / samples);
-    //   const filteredData = [];
-    //   for (let i = 0; i < samples; i++) {
-    //     let blockStart = blockSize * i;
-    //     let sum = 0;
-    //     for (let j = 0; j < blockSize; j++) {
-    //       sum = sum + Math.abs(rawData[blockStart + j]);
-    //     }
-    //     filteredData.push(sum / blockSize);
-    //   }
-    //   return filteredData;
-    // }
-
     message.audio && displayAudioBars();
   }, [message.audio]);
 
