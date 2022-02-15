@@ -25,15 +25,8 @@
   background: var(--primary);
   margin-left: auto;
   margin-right: 5px;
+  color: #e5e5e5;
 }
-
-/* .mine .message-text {
-  align-self: flex-end;
-}
-
-.theirs .message-text {
-  align-self: flex-start;
-} */
 
 .theirs {
   background-color: var(--message-dark);
