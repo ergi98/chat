@@ -21,7 +21,6 @@ const { TextArea } = Input;
 
 let audioRecorder;
 let audioAnalyzer;
-let audioContext;
 
 function getSupportedMime() {
   const types = [
@@ -54,6 +53,7 @@ const Send = React.forwardRef((props, ref) => {
   const [recordingData, setRecordingData] = useState({
     chunks: [],
     audioFile: '',
+    visualizer: [],
     recording: false
   });
 
@@ -81,6 +81,24 @@ const Send = React.forwardRef((props, ref) => {
             audioBitsPerSecond: 128000,
             audioBitrateMode: 'constant'
           });
+          const audioContext = new AudioContext();
+          audioAnalyzer = audioContext.createAnalyser();
+          const source = audioContext.createMediaStreamSource(audioStream);
+          audioAnalyzer.fftSize = 64;
+
+          source.connect(audioAnalyzer);
+
+          setTimeout(() => {
+            audioRecorder.stop();
+            audioRecorder = null;
+            setRecordingData((prev) => {
+              return {
+                ...prev,
+                recording: !prev.recording
+              };
+            });
+          }, 5 * 60 * 1000);
+
           audioRecorder.start(1000);
           audioRecorder.ondataavailable = storeAudioChunk;
         }
@@ -90,8 +108,16 @@ const Send = React.forwardRef((props, ref) => {
     }
 
     function storeAudioChunk(event) {
+      let bufferLength = audioAnalyzer.frequencyBinCount;
+      let dataArray = new Uint8Array(bufferLength);
+      audioAnalyzer.getByteTimeDomainData(dataArray);
+      console.log(dataArray);
       setRecordingData((prev) => {
-        return { ...prev, chunks: [...prev.chunks, event.data] };
+        return {
+          ...prev,
+          chunks: [...prev.chunks, event.data],
+          visualizer: [...prev.visualizer, ...dataArray]
+        };
       });
     }
 
@@ -109,7 +135,7 @@ const Send = React.forwardRef((props, ref) => {
     async function storeRecording() {
       if (Array.isArray(recordingData.chunks) && recordingData.chunks?.length) {
         const audioBlob = new Blob(recordingData.chunks, { type: supportedMime });
-        await visualizeAudio(audioBlob);
+        // await visualizeAudio(audioBlob);
         setRecordingData((prev) => {
           return {
             ...prev,
@@ -120,47 +146,8 @@ const Send = React.forwardRef((props, ref) => {
         });
       }
     }
-
-    async function visualizeAudio(audioBlob) {
-      if (!audioContext) {
-        audioContext = new AudioContext();
-        audioAnalyzer = audioContext.createAnalyser();
-        audioAnalyzer.fftSize = 32;
-      }
-      const arrayBuffer = await new Response(audioBlob).arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioAnalyzer);
-      audioAnalyzer.connect(audioContext.destination);
-
-      const bufferLength = audioAnalyzer.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      audioAnalyzer.getByteTimeDomainData(dataArray);
-
-      console.log(dataArray);
-      // Left here
-    }
     audioRecorder && (audioRecorder.onstop = storeRecording);
   }, [recordingData.chunks]);
-
-  // function visualizeAudioStream(stream) {
-  //   !audioContext && (audioContext = new AudioContext());
-  //   const source = audioContext.createMediaStreamSource(stream);
-
-  //   audioAnalyzer = audioContext.createAnalyser();
-  //   audioAnalyzer.fftSize = 32;
-
-  //   const bufferLength = audioAnalyzer.frequencyBinCount;
-  //   const dataArray = new Uint8Array(bufferLength);
-
-  //   source.connect(audioAnalyzer);
-  //   audioAnalyzer.connect(audioContext.destination);
-  //   audioAnalyzer.getByteTimeDomainData(dataArray);
-
-  //   console.log(dataArray);
-  // }
 
   function handleUserInput(event) {
     if (event.target.value !== '' && !hasEmitted) {
