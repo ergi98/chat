@@ -98,47 +98,13 @@ function Message({ message }) {
     return msgStyles;
   }, [message.sentBy, rootData.user, message.status]);
 
-  useLayoutEffect(() => {
-    async function displayAudioBars() {
-      // Canvas
-      const canvas = audioCanvas.current;
-      canvas.height = 45;
-      canvas.width = window.innerWidth * 0.5 > 350 ? 350 : window.innerWidth * 0.5;
-      // const canvasContext = canvas.getContext('2d');
-
-      // let filteredAudioData = filterData(audioBuffer);
-
-      // console.log(filteredAudioData);
-
-      // let analyser = audioContext.createAnalyser();
-      // audioSource.connect(analyser);
-      // analyser.connect(audioContext.destination);
-      // analyser.fftSize = 32;
-
-      // console.log(analyser);
-
-      // const bufferLength = analyser.frequencyBinCount;
-      // const dataArray = new Uint8Array(bufferLength);
-
-      // const barWidth = canvas.width / bufferLength;
-      // let barHeight;
-      // let x;
-      // analyser.getByteFrequencyData(dataArray);
-
-      // for (let i = 0; i < bufferLength; i++) {
-      //   barHeight = dataArray[i];
-      //   console.log(barHeight);
-      //   canvasContext.fillStyle = 'white';
-      //   canvasContext.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-      //   x += barWidth;
-      // }
-    }
-    message.audio && displayAudioBars();
-  }, [message.audio]);
-
   const messageAudio = useMemo(() => {
     if (!message.audio) return null;
-    return <canvas ref={audioCanvas}></canvas>;
+    return (
+      <audio controls>
+        <source src={`http://${window.location.hostname}:5050/${message.audio}`}></source>
+      </audio>
+    );
   }, [message.audio]);
 
   return (
