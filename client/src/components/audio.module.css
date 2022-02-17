@@ -15,5 +15,20 @@
   align-items: center;
 }
 
-.audio-icon {
+.controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.timeline {
+  flex-grow: 1;
+  margin: 0px 16px;
+}
+
+
+.audio-duration {
+  font-size: 12px;
 }

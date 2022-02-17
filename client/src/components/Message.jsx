@@ -13,7 +13,7 @@ import { Button, Image } from 'antd';
 import { ExclamationCircleFilled, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 
 // Components
-import Audio from './Audio';
+import AudioPlayer from './AudioPlayer';
 
 function Message({ message }) {
   const rootData = useRoot();
@@ -102,7 +102,7 @@ function Message({ message }) {
 
   const messageAudio = useMemo(() => {
     if (!message.audio) return null;
-    return <Audio src={`http://${window.location.hostname}:5050/${message.audio}`} />;
+    return <AudioPlayer src={`http://${window.location.hostname}:5050/${message.audio}`} />;
   }, [message.audio]);
 
   return (
