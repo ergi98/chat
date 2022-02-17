@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import styles from './message.module.css';
 
 // Context
@@ -12,9 +12,11 @@ import { Button, Image } from 'antd';
 
 import { ExclamationCircleFilled, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 
+// Components
+import Audio from './Audio';
+
 function Message({ message }) {
   const rootData = useRoot();
-  const audioCanvas = useRef(null);
 
   function displayDate(date) {
     let localDate = new Date(date);
@@ -100,11 +102,7 @@ function Message({ message }) {
 
   const messageAudio = useMemo(() => {
     if (!message.audio) return null;
-    return (
-      <audio controls>
-        <source src={`http://${window.location.hostname}:5050/${message.audio}`}></source>
-      </audio>
-    );
+    return <Audio src={`http://${window.location.hostname}:5050/${message.audio}`} />;
   }, [message.audio]);
 
   return (
