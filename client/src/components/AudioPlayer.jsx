@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './audio.module.css';
 
 // Antd
@@ -8,32 +8,15 @@ import { Button, Slider } from 'antd';
 import { PauseOutlined, CaretRightOutlined } from '@ant-design/icons';
 
 function AudioPlayer(props) {
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState('00:00');
   const [playing, setPlaying] = useState(false);
-  const [timelinePosition, setTimelinePosition] = useState('00:00');
+  const [timelinePosition, setTimelinePosition] = useState(0);
   const audioRef = useRef(null);
 
   useEffect(() => {
     function setAudioDuration() {
       let duration = currentAudio.duration;
-      if (duration == Infinity || isNaN(duration)) return '00:00';
-      let min = 0,
-        sec = 0;
-
-      while (duration > 0) {
-        if (duration > 60) {
-          min++;
-          duration -= 60;
-        } else {
-          sec += Math.round(duration);
-          duration = 0;
-        }
-      }
-
-      let paddedMin = min.toString().padStart(2, '0');
-      let paddedSec = sec.toString().padStart(2, '0');
-
-      setDuration(`${paddedMin}:${paddedSec}`);
+      setDuration(duration);
     }
 
     function setAudioEventListeners(currentAudio) {
@@ -80,6 +63,34 @@ function AudioPlayer(props) {
     }
   }
 
+  function seekAudio(value) {
+    const position = (value * duration) / 100;
+    setTimelinePosition(value);
+    audioRef.current.currentTime = position;
+  }
+
+  const formattedDuration = useMemo(() => {
+    let localDuration = duration;
+    if (localDuration == Infinity || isNaN(localDuration) || !localDuration) return '00:00';
+    let min = 0,
+      sec = 0;
+
+    while (localDuration > 0) {
+      if (localDuration > 60) {
+        min++;
+        localDuration -= 60;
+      } else {
+        sec += Math.round(localDuration);
+        localDuration = 0;
+      }
+    }
+
+    let paddedMin = min.toString().padStart(2, '0');
+    let paddedSec = sec.toString().padStart(2, '0');
+
+    return `${paddedMin}:${paddedSec}`;
+  }, [duration]);
+
   return (
     <div className={styles['audio-player']}>
       <audio ref={audioRef} onEnded={() => toggleAudio(true)}>
@@ -95,13 +106,14 @@ function AudioPlayer(props) {
         <Slider
           value={timelinePosition}
           className={styles.timeline}
-          tipFormatter={null}
+          tooltipVisible={false}
+          onChange={seekAudio}
           defaultValue={0}
           step={0.1}
           max={100}
           min={0}
         />
-        <div className={styles['audio-duration']}>{duration}</div>
+        <div className={styles['audio-duration']}>{formattedDuration}</div>
       </div>
     </div>
   );
