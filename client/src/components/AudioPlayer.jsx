@@ -81,31 +81,29 @@ function AudioPlayer(props) {
   }
 
   return (
-    <>
-      <div className={styles['audio-player']}>
-        <audio ref={audioRef} onEnded={() => toggleAudio(true)}>
-          <source src={props.src} />
-        </audio>
-        <div className={styles.controls}>
-          <Button
-            onClick={() => toggleAudio()}
-            className={styles['player-button']}
-            icon={playing ? <PauseOutlined /> : <CaretRightOutlined />}
-            shape="circle"
-          />
-          <Slider
-            value={timelinePosition}
-            className={styles.timeline}
-            tipFormatter={null}
-            defaultValue={0}
-            step={0.1}
-            max={100}
-            min={0}
-          />
-          <div className={styles['audio-duration']}>{duration}</div>
-        </div>
+    <div className={styles['audio-player']}>
+      <audio ref={audioRef} onEnded={() => toggleAudio(true)}>
+        <source src={props.src} />
+      </audio>
+      <div className={styles.controls}>
+        <Button
+          onClick={() => toggleAudio()}
+          className={styles['player-button']}
+          icon={playing ? <PauseOutlined /> : <CaretRightOutlined />}
+          shape="circle"
+        />
+        <Slider
+          value={timelinePosition}
+          className={styles.timeline}
+          tipFormatter={null}
+          defaultValue={0}
+          step={0.1}
+          max={100}
+          min={0}
+        />
+        <div className={styles['audio-duration']}>{duration}</div>
       </div>
-    </>
+    </div>
   );
 }
 
