@@ -13,6 +13,8 @@ import {
   CheckOutlined
 } from '@ant-design/icons';
 
+let videoStream;
+
 function CameraModal({ isVisible, setSelectedImage, close }) {
   const videoRef = useRef(null);
   const captureCanvas = useRef(null);
@@ -26,11 +28,9 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
   const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    let currentVideo = videoRef.current;
-    let videoStream;
+    async function setVideoSource(currentVideo) {
+      console.log('%c CameraModal - Creating video stream', 'color: #bf55da');
 
-    async function setVideoSource() {
-      if (imageBase64) return;
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           let deviceWidth = window.innerWidth;
@@ -58,14 +58,32 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
       }
     }
 
-    videoRef.current && setVideoSource();
+    if (videoRef.current && !imageBase64) setVideoSource(videoRef.current);
 
     return () => {
-      videoStream?.getTracks()?.forEach((track) => {
-        if (track.readyState == 'live' && track.kind === 'video') track.stop();
-      });
+      if (videoStream) {
+        console.log(
+          '%c  CameraModal - Stopping video stream (UseEffect)',
+          'background: red; color: #fefefe'
+        );
+        videoStream.getTracks()?.forEach((track) => {
+          if (track.readyState == 'live' && track.kind === 'video') track.stop();
+        });
+      }
     };
   }, [facingMode, imageBase64, videoRef]);
+
+  window.onbeforeunload = () => {
+    if (videoStream) {
+      console.log(
+        '%c  CameraModal - Stopping video stream (Before Unload)',
+        'background: red; color: #fefefe'
+      );
+      videoStream.getTracks()?.forEach((track) => {
+        if (track.readyState == 'live' && track.kind === 'video') track.stop();
+      });
+    }
+  };
 
   function flipCamera() {
     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
@@ -75,7 +93,7 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
     try {
       if (loading) return;
       setLoading(true);
-      let file = await shrinkFileSize(event.file.originFileObj);
+      let file = await shrinkImage(event.file.originFileObj);
       setImage(event.file.originFileObj);
       setImageBase64(file);
     } catch (err) {
@@ -85,7 +103,7 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
     }
   }
 
-  function shrinkFileSize(file) {
+  function shrinkImage(file) {
     return new Promise((resolve, reject) => {
       try {
         const reader = new FileReader();
@@ -129,9 +147,7 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
     });
   }
 
-  function clearPreviousPhoto() {
-    setImageBase64('');
-  }
+  const clearPreviousPhoto = () => setImageBase64('');
 
   function capturePhoto() {
     try {

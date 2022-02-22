@@ -22,36 +22,60 @@ export function useRootUpdate() {
   return useContext(RootUpdateContext);
 }
 
+const initialContext = {
+  jwt: null,
+  user: null,
+  room: null,
+  socket: null
+};
+
 export function ContextProvider({ children }) {
-  const [rootContext, setRootContext] = useState(null);
+  const [rootContext, setRootContext] = useState({ ...initialContext });
 
   useEffect(() => {
-    const JWT = JSON.parse(localStorage.getItem('jwt'));
-    if (JWT) {
-      let userData = jwt_decode(JWT);
-      setTokenInterceptor(JWT);
-      updateRootContext({
-        socket: socket,
-        jwt: JWT,
-        user: userData._id,
-        room: userData.roomId
-      });
-      socket.emit('new-member', JWT);
-    } else {
-      updateRootContext({
-        socket: socket
-      });
+    function initialSetup() {
+      console.log(`%c RootContext - Initial Setup`, 'color: #bada55');
+      const JWT = JSON.parse(localStorage.getItem('jwt'));
+      if (JWT) {
+        let userData = jwt_decode(JWT);
+        setTokenInterceptor(JWT);
+        updateRootContext({
+          jwt: JWT,
+          socket: socket,
+          user: userData._id,
+          room: userData.roomId
+        });
+        socket.emit('new-member', JWT);
+      } else {
+        updateRootContext({
+          socket: socket
+        });
+      }
     }
-    console.log(`%c Use effect on RootContext. Has token: ${!!JWT}`, 'color: #bada55');
+    initialSetup();
   }, []);
 
+  window.onbeforeunload = () => {
+    console.log(
+      '%c RootContext - Disconnecting Socket & Listeners',
+      'background: red; color: #fefefe'
+    );
+    socket.removeAllListeners();
+    socket.disconnect();
+  };
+
   function updateRootContext(data) {
-    setRootContext((previous) => {
-      return {
-        ...previous,
-        ...data
-      };
-    });
+    if (data === null) {
+      socket.removeAllListeners();
+      socket.disconnect();
+      setRootContext({ ...initialContext });
+    } else
+      setRootContext((previous) => {
+        return {
+          ...previous,
+          ...data
+        };
+      });
   }
 
   return (

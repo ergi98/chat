@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import styles from './message.module.css';
 
 // Context
-import { useRoot } from '../RootContext';
+import { useRoot } from '../../../RootContext';
 
 // Animation
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ import { Button, Image } from 'antd';
 import { ExclamationCircleFilled, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 
 // Components
-import AudioPlayer from './AudioPlayer';
+import AudioPlayer from '../audio_player/AudioPlayer';
 
 function Message({ message }) {
   const rootData = useRoot();
@@ -61,7 +61,7 @@ function Message({ message }) {
   }, [message.text, message.image, message.audio]);
 
   const messageDate = useMemo(
-    () => (message.status === 'sent' ? displayDate(message.sentAt) : ''),
+    () => (message.status === 'sent' ? displayDate(message.sentAt) : null),
     [message.sentAt, message.status]
   );
 
@@ -105,6 +105,7 @@ function Message({ message }) {
     return <AudioPlayer src={`http://${window.location.hostname}:5050/${message.audio}`} />;
   }, [message.audio]);
 
+  // TODO: Animate presence
   return (
     <motion.div initial="initial" animate="final" variants={variants} className={messageStyles}>
       <div className={styles.content}>

@@ -2,15 +2,15 @@ import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from
 import styles from './chat-room.module.css';
 
 // Components
-import Send from './Send';
-import Chat from './Chat';
-import TopRibbon from './TopRibbon';
+import Send from '../../components/chat_room/send/Send';
+import Chat from '../../components/chat_room/chat/Chat';
+import TopRibbon from '../../components/chat_room/top_ribbon/TopRibbon';
 
 // Context
-import { useRoot } from '../RootContext';
+import { useRoot } from '../../RootContext';
 
 // Api
-import { sendMessage, getMessagesByChunks } from '../mongo/message.js';
+import { sendMessage, getMessagesByChunks } from '../../mongo/message.js';
 
 // UUID
 import { v4 } from 'uuid';
@@ -43,16 +43,16 @@ function ChatRoom() {
   const sendRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
-  const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
+  const [roomMessages, setRoomMessages] = useState([]);
   const [lastFetchDate, setLastFetchDate] = useState(null);
+  const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
 
   const [hasSetListeners, setHasSetListeners] = useState(false);
-  const [roomMessages, setRoomMessages] = useState([]);
   const [typingIndicator, setTypingIndicator] = useState(false);
 
   useEffect(() => {
     function checkForRedirect() {
-      console.log('%c Check for redirect ChatRoom', 'color: #bf55da');
+      console.log('%c ChatRoom - Checking for redirect', 'color: #bf55da');
       if (!roomId) {
         let storedRoomId = rootData.room;
         storedRoomId
@@ -60,13 +60,13 @@ function ChatRoom() {
           : navigate(`/`, { replace: true });
       }
     }
-
-    rootData && checkForRedirect();
-  }, [rootData, navigate, roomId]);
+    // TODO: Check if the room has no more members
+    rootData.room && checkForRedirect();
+  }, [rootData.room, roomId, navigate]);
 
   useEffect(() => {
     function setSocketListeners() {
-      console.log('%c new-message listener ChatRoom', 'color: #bf55da');
+      console.log('%c ChatRoom - Setting socket listeners', 'color: #bf55da');
       rootData.socket.on('new-message', (message) => {
         // If yours update
         if (message.sentBy === rootData.user) {
@@ -91,26 +91,20 @@ function ChatRoom() {
       rootData.socket.on('finished-typing', () => {
         setTypingIndicator(false);
       });
+      rootData.socket.on('left-chat', () => {
+        message.info('A user left chat');
+      });
       setHasSetListeners(true);
     }
 
-    if (rootData !== null && !hasSetListeners) setSocketListeners();
-
-    return () => {
-      if (rootData !== null && hasSetListeners) {
-        rootData.socket.off('new-message');
-        rootData.socket.off('new-member');
-        rootData.socket.off('typing');
-        rootData.socket.on('finished-typing');
-      }
-    };
-  }, [rootData, hasSetListeners, scrollToBottom]);
+    if (rootData.socket && rootData.user) setSocketListeners();
+  }, [rootData.socket, rootData.user, scrollToBottom]);
 
   useLayoutEffect(() => {
     let observer, localSendRef, localChatRef;
 
     function attachResizeObserver(expandingElRef, shrinkingElRef) {
-      console.log('%c Resize observer ChatRoom', 'color: #bf55da');
+      console.log('%c ChatRoom - Resize observer', 'color: #bf55da');
       // Resize the chat depending on the input field height
       observer = new ResizeObserver((entries) => {
         for (let entry of entries) {
@@ -127,25 +121,32 @@ function ChatRoom() {
     }
 
     return () => {
-      if (localChatRef?.current && observer) observer.unobserve(localSendRef);
+      if (localChatRef?.current && observer) {
+        console.log('%c  ChatRoom - Removing observer', 'background: red; color: #fefefe');
+        observer.unobserve(localSendRef);
+      }
     };
   }, [sendRef]);
 
   useLayoutEffect(() => {
     function setGlobalVh() {
+      console.log('%c ChatRoom - Setting global vh listener', 'color: #bf55da');
+
       let vh = window.innerHeight * 0.01;
       let root = document.querySelector(':root');
       root.style.setProperty('--vh', `${vh}px`);
     }
     setGlobalVh();
     window.addEventListener('resize', setGlobalVh);
-    return () => {
+    window.onbeforeunload = () => {
+      console.log('%c  ChatRoom - Removing resize listener', 'background: red; color: #fefefe');
       window.removeEventListener('resize', setGlobalVh);
     };
   }, []);
 
   useEffect(() => {
     async function initialFetch() {
+      console.log('%c ChatRoom - Fetching the initial messages', 'color: #bf55da');
       setLoading(true);
       let { date, messages } = await fetchMessages();
       setLastFetchDate(date);
@@ -157,8 +158,6 @@ function ChatRoom() {
   }, [hasSetListeners, scrollToBottom]);
 
   useEffect(() => {
-    let chatCurrent;
-
     async function checkIfScrolledToTop(event) {
       if (event.target.scrollTop === 0) {
         if (hasMoreToFetch === false) return;
@@ -172,14 +171,20 @@ function ChatRoom() {
     }
 
     if (chatRef?.current) {
-      chatCurrent = chatRef.current;
-      chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
-      chatCurrent.addEventListener('scroll', checkIfScrolledToTop);
+      console.log('CHAT REF', chatRef.current);
+      console.log('%c ChatRoom - Adding scroll top event listener', 'color: #bf55da');
+      // chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
+      chatRef.current.addEventListener('scroll', checkIfScrolledToTop);
     }
 
     return () => {
-      if (chatCurrent) {
-        chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
+      if (chatRef?.current) {
+        console.log(
+          '%c  ChatRoom - Removing scroll top event listener',
+          'background: red; color: #fefefe'
+        );
+        console.log(chatRef.current);
+        chatRef.current.removeEventListener('scroll', checkIfScrolledToTop);
       }
     };
   }, [chatRef, hasMoreToFetch, lastFetchDate]);
@@ -223,7 +228,7 @@ function ChatRoom() {
   }
 
   const scrollToBottom = useCallback(() => {
-    if (chatRef && chatRef?.current) {
+    if (chatRef?.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [chatRef]);

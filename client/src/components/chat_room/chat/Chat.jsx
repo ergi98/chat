@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './chat.module.css';
 
 // Components
-import Message from './Message';
+import Message from '../message/Message';
 
 // ANTD
 import { Spin, Empty } from 'antd';
@@ -13,6 +13,7 @@ const Chat = React.forwardRef((props, ref) => {
 
   useEffect(() => {
     function groupMessagesByDay(messageArray) {
+      console.log('%c Chat - Grouping Messages', 'color: #bf55da');
       if (!Array.isArray(messageArray) || messageArray?.length === 0)
         return { [formatMessageDate(new Date())]: [] };
 
@@ -28,6 +29,7 @@ const Chat = React.forwardRef((props, ref) => {
 
       return groupedMessages;
     }
+
     function formatMessageDate(date) {
       let dateObj = new Date(date);
       // 13 Mon 2022
@@ -51,7 +53,8 @@ const Chat = React.forwardRef((props, ref) => {
       ];
       return months[index];
     }
-    setGroupedMessages(groupMessagesByDay(props.messages));
+    let groupedMessages = groupMessagesByDay(props.messages);
+    setGroupedMessages(groupedMessages);
   }, [props.messages]);
 
   return (

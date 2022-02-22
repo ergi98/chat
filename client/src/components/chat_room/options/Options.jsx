@@ -5,7 +5,7 @@ import styles from './options.module.css';
 import { Radio, Modal, Button, Space } from 'antd';
 
 // Utilities
-import { getSelectedTheme, setAppTheme } from '../utilities/theme.utilities';
+import { getSelectedTheme, setAppTheme } from '../../../utilities/theme.utilities';
 
 // Icons
 import { CloseOutlined } from '@ant-design/icons';
@@ -15,12 +15,12 @@ function Options({ isVisible, close }) {
 
   function onThemeChange(event) {
     let mode = event.target.value;
-    console.log(mode);
     setAppTheme(mode);
     setSelectedTheme(mode);
   }
 
   useEffect(() => {
+    console.log('%c Options - Setting local variable {selectedTheme}', 'color: #bf55da');
     let storedTheme = getSelectedTheme();
     setSelectedTheme(storedTheme);
   }, []);
@@ -53,14 +53,16 @@ function Options({ isVisible, close }) {
         background: 'var(--overlay)'
       }}
       onCancel={() => close()}
-      destroyOnClose={true}>
+      destroyOnClose={true}
+    >
       <div className={styles.menu}>
         <div className={styles['text']}>Application Theme</div>
         <Radio.Group
           size="large"
           className={styles.radio}
           onChange={onThemeChange}
-          value={selectedTheme}>
+          value={selectedTheme}
+        >
           <Space size={14} direction="vertical">
             <Radio className={styles['radio-value']} value={'light'}>
               Light Mode

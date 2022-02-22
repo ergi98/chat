@@ -1,10 +1,5 @@
 import React, { useEffect } from 'react';
 
-// Components
-import NotFound from './components/NotFound';
-import ChatRoom from './components/ChatRoom';
-import SelectRoom from './components/SelectRoom';
-
 // Context Provider
 import { ContextProvider } from './RootContext';
 
@@ -14,40 +9,49 @@ import { getDeviceTheme, getSelectedTheme, setAppTheme } from './utilities/theme
 // Router
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// Components
+import ChatRoom from './views/chat_room/ChatRoom';
+// import SelectRoom from './components/SelectRoom';
+import JoinRoom from './views/join_room/JoinRoom';
+import NotFound from './views/not_found/NotFound';
+import InitialScreen from './views/initial_screen/InitialScreen';
+
+const onDevicePreferenceChange = () => setAppTheme('device');
+
 function App() {
   useEffect(() => {
     function setUserTheme() {
+      console.log('%c App - Setting user theme', 'color: #bf55da');
       let deviceTheme = getDeviceTheme();
       let selectedTheme = getSelectedTheme();
       setAppTheme(selectedTheme ?? deviceTheme);
     }
 
     function listenForChanges() {
+      console.log('%c App - Listening for theme change', 'color: #bf55da');
       window
         .matchMedia('(prefers-color-scheme: dark)')
         .addEventListener('change', onDevicePreferenceChange);
     }
 
-    const onDevicePreferenceChange = () => setAppTheme('device');
-
     setUserTheme();
     listenForChanges();
-
-    return () => {
-      window
-        .matchMedia('(prefers-color-scheme: dark)')
-        .removeEventListener('change', onDevicePreferenceChange);
-    };
   }, []);
 
+  window.onbeforeunload = () => {
+    console.log('%c  App - Removing theme change listener', 'background: red; color: #fefefe');
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .removeEventListener('change', onDevicePreferenceChange);
+  };
 
   return (
     <React.StrictMode>
       <BrowserRouter>
         <ContextProvider>
           <Routes>
-            <Route path="/" element={<SelectRoom />}>
-              <Route path=":roomId" element={<SelectRoom />} />
+            <Route path="/" element={<InitialScreen />}>
+              <Route path=":roomId" element={<JoinRoom />} />
             </Route>
             <Route path="chat" element={<ChatRoom />}>
               <Route path=":roomId" element={<ChatRoom />} />

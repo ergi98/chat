@@ -45,8 +45,8 @@ const __dirname = dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
-app.use('/images', express.static('images'))
-app.use('/audio', express.static('audio'))
+app.use("/images", express.static("images"));
+app.use("/audio", express.static("audio"));
 
 app.use("/", async (req, res, next) => {
   try {
@@ -70,7 +70,7 @@ app.use("/", async (req, res, next) => {
           });
         } else
           res
-            .status(500)
+            .status(403)
             .send({ message: "You do not have permissions for this action " });
       }
     }

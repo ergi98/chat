@@ -11,11 +11,11 @@ import {
 } from '@ant-design/icons';
 
 // Components
-import GlassDiv from './GlassDiv';
-import CameraModal from './CameraModal';
+import GlassDiv from '../../general/glass_div/GlassDiv';
+import CameraModal from '../camera_modal/CameraModal';
 
 // Context
-import { useRoot } from '../RootContext';
+import { useRoot } from '../../../RootContext';
 
 const { TextArea } = Input;
 
@@ -53,7 +53,7 @@ const Send = React.forwardRef((props, ref) => {
   const [recordingData, setRecordingData] = useState({
     chunks: [],
     audioFile: '',
-    visualizer: [],
+    // visualizer: [],
     recording: false
   });
 
@@ -69,8 +69,9 @@ const Send = React.forwardRef((props, ref) => {
 
   useEffect(() => {
     async function startRecording() {
+      console.log('%c Send - Starting recording', 'color: #bf55da');
+
       try {
-        if (!recordingData.recording) return;
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           let audioStream = await navigator.mediaDevices.getUserMedia({
             audio: true
@@ -108,23 +109,23 @@ const Send = React.forwardRef((props, ref) => {
     }
 
     function storeAudioChunk(event) {
-      let bufferLength = audioAnalyzer.frequencyBinCount;
-      let dataArray = new Uint8Array(bufferLength);
-      audioAnalyzer.getByteTimeDomainData(dataArray);
-      console.log(dataArray);
+      // let bufferLength = audioAnalyzer.frequencyBinCount;
+      // let dataArray = new Uint8Array(bufferLength);
+      // audioAnalyzer.getByteTimeDomainData(dataArray);
       setRecordingData((prev) => {
         return {
           ...prev,
-          chunks: [...prev.chunks, event.data],
-          visualizer: [...prev.visualizer, ...dataArray]
+          chunks: [...prev.chunks, event.data]
+          // visualizer: [...prev.visualizer, ...dataArray]
         };
       });
     }
 
-    startRecording();
+    recordingData.recording && startRecording();
 
     return () => {
       if (audioRecorder) {
+        console.log('%c  Send - Stopping recording', 'background: red; color: #fefefe');
         audioRecorder.stop();
         audioRecorder = null;
       }
@@ -146,6 +147,8 @@ const Send = React.forwardRef((props, ref) => {
         });
       }
     }
+
+    audioRecorder && console.log('%c Send - Adding store recording callback', 'color: #bf55da');
     audioRecorder && (audioRecorder.onstop = storeRecording);
   }, [recordingData.chunks]);
 
@@ -311,13 +314,13 @@ const Send = React.forwardRef((props, ref) => {
             ref={inputRef}
             bordered={false}
             value={userInput}
+            disabled={isRecordingAudio}
             onChange={handleUserInput}
             onPressEnter={submitMessage}
             onFocus={props.scrollToBottom}
             placeholder={getPlaceholderText}
             className={styles['input-field']}
             autoSize={{ minRows: 1, maxRows: 6 }}
-            disabled={isRecordingAudio}
           />
           <Button
             onClick={submitMessage}

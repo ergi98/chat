@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useReducer, useCallback } from 'react';
 import styles from './room.module.css';
 
 import { create as createRoom, getRoom, assignUserToRoom } from '../mongo/room.js';
@@ -64,20 +64,31 @@ function SelectRoom() {
           `Click the link below to join me! \n` +
           `http://${window.location.host}/${rootData.room}`
       );
-      message.success('Room link copied');
+      message.success('Room link copied!');
     } catch (err) {
       console.log(err);
       message.success('Could not copy room link :(');
     }
   }
 
+  const setGlobalData = useCallback(() => {
+    let JWT = JSON.parse(localStorage.getItem('jwt'));
+    let decoded = jwt_decode(JWT);
+    updateRootData({
+      jwt: JWT,
+      user: decoded._id,
+      room: decoded.roomId
+    });
+  }, [updateRootData]);
+
   useEffect(() => {
     async function initialSetup() {
       try {
+        console.log('%c SelectRoom - InitialSetup SelectRoom', 'color: #557fda');
         await checkForRedirect();
         // If the JWT exists there is no point in handling user creation
         if (rootData.jwt) return;
-        roomId ? await handleInvite() : await handleNewUser();
+        roomId && (await handleInvite());
       } catch (err) {
         message.error(err.message);
       } finally {
@@ -130,38 +141,15 @@ function SelectRoom() {
       }
     }
 
-    async function handleNewUser() {
-      dispatch({ type: 'creating-room', message: 'Creating your room ...' });
-      let { room } = await createRoom();
-      dispatch({ type: 'creating-user', message: 'Creating your user ...' });
-      await createUser(room._id);
-      setGlobalData();
-      await assignUserToRoom();
-      dispatch({
-        type: 'waiting',
-        message:
-          'Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.'
-      });
-    }
-
-    function setGlobalData() {
-      let JWT = JSON.parse(localStorage.getItem('jwt'));
-      let decoded = jwt_decode(JWT);
-      updateRootData({
-        jwt: JWT,
-        user: decoded._id,
-        room: decoded.roomId
-      });
-    }
-
-    if (rootData !== null && hasPerformedSetup === false) {
-      console.log('%c InitialSetup SelectRoom', 'color: #557fda');
+    if (!hasPerformedSetup) {
       initialSetup();
     }
-  }, [rootData, hasPerformedSetup, navigate, roomId, updateRootData]);
+  }, [roomId, rootData.jwt, hasPerformedSetup, updateRootData, setGlobalData, navigate]);
 
   useEffect(() => {
-    if (hasPerformedSetup && rootData !== null && rootData.jwt) {
+    function addNewMemberListener() {
+      console.log('%c SelectRoom - Adding new member listener', 'color: #bf55da');
+
       rootData.socket.on('new-member', (data) => {
         if (rootData.user !== data._id) {
           message.info('Redirecting to chat ...');
@@ -172,31 +160,68 @@ function SelectRoom() {
       });
       rootData.socket.emit('new-member', rootData.jwt);
     }
+
+    if (hasPerformedSetup && rootData.jwt && rootData.socket && rootData.user)
+      addNewMemberListener();
     return () => {
-      rootData && rootData.socket.off('new-member');
+      rootData.socket &&
+        console.log(
+          '%c  SelectRoom - Removing new member listener',
+          'background: red; color: #fefefe'
+        );
+      rootData.socket && rootData.socket.off('new-member');
     };
-  }, [hasPerformedSetup, rootData, navigate]);
+  }, [rootData.jwt, rootData.socket, rootData.user, hasPerformedSetup, navigate]);
+
+  async function handleNewUser() {
+    dispatch({ type: 'creating-room', message: 'Creating your room ...' });
+    let { room } = await createRoom();
+    dispatch({ type: 'creating-user', message: 'Creating your user ...' });
+    await createUser(room._id);
+    setGlobalData();
+    await assignUserToRoom();
+    dispatch({
+      type: 'waiting',
+      message:
+        'Waiting for other members to join you! \n Invite a friend to chat together by sending them the link below.'
+    });
+  }
+
+  async function createUserAndRoom() {
+    await handleNewUser();
+  }
+
+  function leaveRoom() {}
 
   return (
     <div className={`height-full ${styles['select-room']}`}>
       <div>
         <div className={styles.title}>Chat Room</div>
-        <div>
-          {state.loading ? (
-            <div>
-              <Spin size="large" /> <br />
-              <div className={styles['loading-text']}>{state.text}</div>
-            </div>
-          ) : (
-            <>
-              <div className={styles.hint}>{state.text}</div>
-              <div className={styles.link}>{`http://${window.location.host}`}</div>
-              <Button onClick={copyLink} type="primary" className={styles.copy}>
-                Copy Link
-              </Button>
-            </>
-          )}
-        </div>
+        {createRoom || rootData.room || roomId ? (
+          <div>
+            {state.loading ? (
+              <div>
+                <Spin size="large" /> <br />
+                <div className={styles['loading-text']}>{state.text}</div>
+              </div>
+            ) : (
+              <>
+                <div className={styles.hint}>{state.text}</div>
+                <div className={styles.link}>{`http://${window.location.host}`}</div>
+                <Button onClick={leaveRoom} type="text" className={styles.leave}>
+                  Leave Room
+                </Button>
+                <Button onClick={copyLink} type="primary" className={styles.copy}>
+                  Copy Link
+                </Button>
+              </>
+            )}
+          </div>
+        ) : (
+          <Button onClick={createUserAndRoom} type="primary" className={styles.copy}>
+            Create Your Room
+          </Button>
+        )}
       </div>
     </div>
   );

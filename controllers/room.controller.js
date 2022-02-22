@@ -1,5 +1,7 @@
 import RoomSchema from "../schemas/room.schema.js";
+import UserSchema from "../schemas/user.schema.js";
 
+import mongoose from "mongoose";
 export default class RoomController {
   static async createRoom(req, res) {
     try {
@@ -7,7 +9,9 @@ export default class RoomController {
       res.status(200).send({ room });
     } catch (err) {
       console.log(err);
-      res.status(400).send({ message: "There was an error creating room" });
+      res
+        .status(400)
+        .send({ message: "An error occurred while creating your room" });
     }
   }
 
@@ -17,7 +21,9 @@ export default class RoomController {
       res.status(200).send({ roomData });
     } catch (err) {
       console.log(err);
-      res.status(400).send({ message: "There was an error checking room" });
+      res
+        .status(400)
+        .send({ message: "An error occurred while getting your room" });
     }
   }
 
@@ -33,9 +39,31 @@ export default class RoomController {
       res.status(200).send({ roomData });
     } catch (err) {
       console.log(err);
-      res
-        .status(400)
-        .send({ message: "There was an error while assigning room" });
+      res.status(400).send({
+        message: "An error occurred while assigning you to this room",
+      });
+    }
+  }
+
+  static async removeFromRoom(req, res) {
+    let session;
+    try {
+      session = await mongoose.startSession();
+
+      await session.withTransaction(async () => {
+        await RoomSchema.findByIdAndUpdate(req.headers.room, {
+          $pull: { members: req.headers.user },
+        });
+        await UserSchema.findByIdAndDelete(req.headers.user);
+      });
+      res.status(200).send({ success: true });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send({
+        message: "An error occurred while removing you from this room",
+      });
+    } finally {
+      session.endSession();
     }
   }
 }

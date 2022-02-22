@@ -41,3 +41,7 @@
   color: var(--text-primary);
   margin-top: 12px;
 }
+
+.leave {
+  color: var(--text-primary);
+}

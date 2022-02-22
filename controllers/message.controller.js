@@ -9,11 +9,11 @@ export default class MessageController {
         sentBy: req.headers.user,
         roomId: req.headers.room,
       };
-      
+
       payload.text && (messageData.text = payload.text);
       payload.image && (messageData.image = payload.image);
       payload.audio && (messageData.audio = payload.audio);
-      
+
       const message = await MessageSchema.create(messageData);
       res.status(200).send({ message });
     } catch (err) {
