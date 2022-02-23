@@ -1,9 +1,90 @@
-import React from 'react'
+import React, { useState } from 'react';
+import styles from './initial-screen.module.css';
+
+// Router
+import { useNavigate } from 'react-router-dom';
+
+// ANTD
+import { Button, message, Spin } from 'antd';
+
+// Components
+import PasteLinkDialog from '../../components/initial_screen/link_dialog/PasteLinkDialog';
+
+// Mongo
+import { createUserAndRoom } from '../../mongo/user';
+
+// Context
+import { useRootUpdate } from '../../RootContext';
 
 function InitialScreen() {
+  const navigate = useNavigate();
+
+  const updateRootData = useRootUpdate();
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState('');
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+
+  async function handleCreate() {
+    try {
+      setIsCreating(true);
+      let result = await createUserAndRoom();
+      updateRootData({
+        jwt: result.token,
+        user: result.user._id,
+        room: result.room._id
+      });
+      redirectToWaitScreen(result.room._id);
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
+  function toggleLinkDialog(value) {
+    setShowLinkDialog(value);
+  }
+
+  function redirectToChat(roomId) {
+    setCurrentStatus('All set!. Redirecting you to your chat room.');
+    setTimeout(() => {
+      navigate(`/chat/${roomId}`, { replace: true });
+    }, 1000);
+  }
+
+  function redirectToWaitScreen(roomId) {
+    setTimeout(() => {
+      navigate(`/wait/${roomId}`, { replace: true });
+    }, 1000);
+  }
+
   return (
-    <div>InitialScreen</div>
-  )
+    <main className={`height-full ${styles['initial-screen']}`}>
+      <h1 className={styles['welcome-title']}>Welcome!</h1>
+      <p className={styles['explain-paragraph']}>
+        Create your own room or enter a link to join your friends.
+      </p>
+      {isCreating ? (
+        <div className={styles['creating-room']}>
+          <Spin size="large" /> <br />
+          <div className={styles['status-indicator']}>{currentStatus}</div>
+        </div>
+      ) : (
+        <div>
+          <Button onClick={handleCreate} type="primary" className={styles['create-btn']}>
+            Create Room
+          </Button>
+          <Button onClick={() => toggleLinkDialog(true)} type="text" className={styles['link-btn']}>
+            Enter room link
+          </Button>
+        </div>
+      )}
+      {showLinkDialog ? (
+        <PasteLinkDialog show={showLinkDialog} toggle={toggleLinkDialog} success={redirectToChat} />
+      ) : null}
+    </main>
+  );
 }
 
-export default InitialScreen
+export default InitialScreen;

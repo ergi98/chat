@@ -50,10 +50,14 @@ app.use("/audio", express.static("audio"));
 
 app.use("/", async (req, res, next) => {
   try {
-    if (
-      ["/create-room", "/create-user"].includes(req.url) &&
-      !req.headers.authorization
-    ) {
+    // Can be used without token access
+    let whitelistedUrls = [
+      "/create-room",
+      "/create-user",
+      "/create-user-and-assign",
+      "/create-user-and-room",
+    ];
+    if (whitelistedUrls.includes(req.url) && !req.headers.authorization) {
       next();
     } else {
       let { isValid, error } = await validateToken(req.headers.authorization);

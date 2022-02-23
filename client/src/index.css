@@ -233,6 +233,7 @@ table {
   --message-dark: #e3e3e3;
   --overlay: #5a5a5abf;
 
+  --success: #8dfe93;
   --error: #fe918d;
 }
 
@@ -253,6 +254,7 @@ table {
   --message-dark: #272727;
   --overlay: #000000c5;
 
+  --success: #74ff76;
   --error: #ff7874;
 }
 
@@ -326,4 +328,13 @@ table {
 
 .ant-image-mask {
   border-radius: 10px;
+}
+
+.ant-input-suffix {
+  transform: scale(1.5);
+}
+
+.ant-input-clear-icon {
+  fill: #1890FF !important;
+  color: #1890FF !important;
 }

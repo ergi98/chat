@@ -1,0 +1,47 @@
+.initial-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  background-image: linear-gradient(var(--primary) 20%, var(--darkest-bg));
+}
+
+.welcome-title {
+  font-size: 28px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.explain-paragraph {
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.create-btn {
+  margin-top: 48px;
+}
+
+.link-btn {
+  margin-top: 12px;
+  color: var(--text-primary);
+  opacity: 0.75;
+}
+
+.link-btn:hover {
+  color: var(--text-primary);
+  opacity: 0.75;
+}
+
+.status-indicator {
+  margin-top: 12px;
+  color: var(--text-primary);
+  opacity: 0.75;
+}
+
+.creating-room {
+  margin-top: 48px;
+}

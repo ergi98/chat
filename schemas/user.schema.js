@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema({
   roomId: {
     type: "ObjectId",
     ref: "chats",
-    required: true,
   },
 });
 

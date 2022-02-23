@@ -1,0 +1,29 @@
+.text,
+.status {
+  color: var(--text-primary);
+}
+
+.header {
+  font-weight: 400;
+}
+
+.join-btn {
+  margin-top: 48px;
+}
+
+.status {
+  margin-top: 12px;
+  text-align: center !important;
+}
+
+.link-input {
+  margin-top: 32px;
+}
+
+.success {
+  color: var(--success);
+}
+
+.error {
+  color: var(--error);
+}

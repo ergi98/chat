@@ -1,0 +1,10 @@
+.waiting-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  background-image: linear-gradient(var(--primary) 20%, var(--darkest-bg));
+}
