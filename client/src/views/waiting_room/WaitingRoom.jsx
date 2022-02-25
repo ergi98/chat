@@ -38,20 +38,20 @@ function WaitingRoom() {
   }, [roomId]);
 
   useEffect(() => {
-    function setNewMemberListener() {
-      if (!rootData.socket) return;
-      rootData.socket.on('new-member', (data) => {
-        message.info('A friend joined!. Redirecting to chat ...');
-        setTimeout(() => {
-          navigate(`/chat/${data.roomId}`, { replace: true });
-        }, 1000);
-      });
+    function handleNewMember(data) {
+      message.info('A friend joined!. Redirecting to chat ...');
+      setTimeout(() => {
+        navigate(`/chat/${data.roomId}`, { replace: true });
+      }, 1000);
     }
 
-    setNewMemberListener();
+    const setSocketListeners = () =>
+      rootData.socket.on('new-member', (data) => handleNewMember(data));
+
+    setSocketListeners();
 
     return () => {
-      rootData.socket && rootData.socket.off('new-member');
+      rootData.socket.off('new-member');
     };
   }, [rootData.socket, navigate]);
 

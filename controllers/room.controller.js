@@ -1,7 +1,10 @@
 import RoomSchema from "../schemas/room.schema.js";
 import UserSchema from "../schemas/user.schema.js";
+import MessageSchema from "../schemas/message.schema.js";
 
 import mongoose from "mongoose";
+
+import * as fs from "fs";
 export default class RoomController {
   static async createRoom(req, res) {
     try {
@@ -51,9 +54,29 @@ export default class RoomController {
       session = await mongoose.startSession();
 
       await session.withTransaction(async () => {
-        await RoomSchema.findByIdAndUpdate(req.headers.room, {
-          $pull: { members: req.headers.user },
-        });
+        const roomData = await RoomSchema.findByIdAndUpdate(
+          req.headers.room,
+          {
+            $pull: { members: req.headers.user },
+          },
+          { returnDocument: "after" }
+        );
+        if (!roomData._doc.members.length) {
+          await RoomSchema.findByIdAndDelete(req.headers.room);
+          await MessageSchema.deleteMany({
+            roomId: mongoose.Types.ObjectId(req.headers.room),
+          });
+          fs.rmSync(`images/${req.headers.room}`, {
+            recursive: true,
+            force: true,
+          });
+          fs.rmSync(`audio/${req.headers.room}`, {
+            recursive: true,
+            force: true,
+          });
+
+          // TODO: Delete user media as well
+        }
         await UserSchema.findByIdAndDelete(req.headers.user);
       });
       res.status(200).send({ success: true });

@@ -11,7 +11,7 @@ import { Button, message, Spin } from 'antd';
 import { createUserAndRoom } from '../../mongo/user';
 
 // Context
-import { useRootUpdate } from '../../RootContext';
+import { useRoot, useRootUpdate } from '../../RootContext';
 
 // Components
 import PasteLinkDialog from '../../components/initial_screen/link_dialog/PasteLinkDialog';
@@ -19,6 +19,7 @@ import PasteLinkDialog from '../../components/initial_screen/link_dialog/PasteLi
 function InitialScreen() {
   const navigate = useNavigate();
 
+  const rootData = useRoot();
   const updateRootData = useRootUpdate();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -34,6 +35,7 @@ function InitialScreen() {
         user: result.user._id,
         room: result.room._id
       });
+      rootData.socket.emit('new-member', result.token);
       redirectToWaitScreen(result.room._id);
     } catch (err) {
       message.error(err.message);

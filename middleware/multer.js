@@ -4,11 +4,11 @@ import * as fs from "fs";
 // IMAGE
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    fs.access("images/", (err) => {
+    fs.access(`images/${req.headers.room}/`, (err) => {
       if (err) {
-        fs.mkdirSync("images");
+        fs.mkdirSync(`images/${req.headers.room}`);
       }
-      cb(null, "images/");
+      cb(null, `images/${req.headers.room}/`);
     });
   },
   filename: function (req, file, cb) {
@@ -19,11 +19,11 @@ const imageStorage = multer.diskStorage({
 // AUDIO
 const audioStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    fs.access("audio/", (err) => {
+    fs.access(`audio/${req.headers.room}/`, (err) => {
       if (err) {
-        fs.mkdirSync("audio");
+        fs.mkdirSync(`audio/${req.headers.room}`);
       }
-      cb(null, "audio/");
+      cb(null, `audio/${req.headers.room}/`);
     });
   },
   filename: function (req, file, cb) {
@@ -33,4 +33,3 @@ const audioStorage = multer.diskStorage({
 
 export const imageUpload = multer({ storage: imageStorage });
 export const audioUpload = multer({ storage: audioStorage });
-
