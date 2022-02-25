@@ -1,0 +1,27 @@
+.joining-title {
+  font-size: 28px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.joining-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  background-image: linear-gradient(var(--primary) 20%, var(--darkest-bg));
+}
+
+.hint {
+  color: var(--text-primary);
+  opacity: .8;
+  margin-top: 24px;
+}
+
+.spinner {
+  margin-top: 24px;
+}

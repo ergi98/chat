@@ -10,7 +10,12 @@ import { Button, Modal, Input } from 'antd';
 // Mongo
 import { createUserAndAssignToRoom } from '../../../mongo/user';
 
+// Root
+import { useRootUpdate } from '../../../RootContext';
+
 function PasteLinkDialog(props) {
+  const updateRootData = useRootUpdate();
+
   const [roomLink, setRoomLink] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [status, setStatus] = useState({
@@ -76,6 +81,11 @@ function PasteLinkDialog(props) {
       setIsJoining(true);
       let id = getRoomIdFromUrl(roomLink);
       let data = await createUserAndAssignToRoom(id);
+      updateRootData({
+        jwt: data.jwt,
+        user: data.user._id,
+        room: data.room._id
+      });
       setStatus({
         type: 'success',
         message: 'All set! Redirecting you to your chat room.'

@@ -15,9 +15,6 @@ import { sendMessage, getMessagesByChunks } from '../../mongo/message.js';
 // UUID
 import { v4 } from 'uuid';
 
-// Router
-import { useParams, useNavigate } from 'react-router-dom';
-
 // ANTD
 import { message } from 'antd';
 
@@ -33,11 +30,7 @@ async function fetchMessages(date = null) {
 }
 
 function ChatRoom() {
-  const navigate = useNavigate();
-
   const rootData = useRoot();
-
-  const { roomId } = useParams();
 
   const chatRef = useRef(null);
   const sendRef = useRef(null);
@@ -51,53 +44,54 @@ function ChatRoom() {
   const [typingIndicator, setTypingIndicator] = useState(false);
 
   useEffect(() => {
-    function checkForRedirect() {
-      console.log('%c ChatRoom - Checking for redirect', 'color: #bf55da');
-      if (!roomId) {
-        let storedRoomId = rootData.room;
-        storedRoomId
-          ? navigate(`/chat/${storedRoomId}`, { replace: true })
-          : navigate(`/`, { replace: true });
+    function handleNewMessage(message) {
+      console.log('HERERERERE')
+      // If yours update
+      if (message.sentBy === rootData.user) {
+        setRoomMessages((previous) =>
+          previous.map((prev) => {
+            return prev._id === message._id ? message : prev;
+          })
+        );
+      }
+      // If not yours append to end
+      else setRoomMessages((previous) => [...previous, message]);
+      scrollToBottom();
+    }
+
+    function handleNewMember(data) {
+      if (rootData.user !== data._id) {
+        message.info('New user joined');
       }
     }
-    // TODO: Check if the room has no more members
-    rootData.room && checkForRedirect();
-  }, [rootData.room, roomId, navigate]);
 
-  useEffect(() => {
+    function toggleTyping(value) {
+      setTypingIndicator(value);
+    }
+
+    function handleMemberLeave() {
+      message.info('A user left chat');
+    }
+
     function setSocketListeners() {
       console.log('%c ChatRoom - Setting socket listeners', 'color: #bf55da');
-      rootData.socket.on('new-message', (message) => {
-        // If yours update
-        if (message.sentBy === rootData.user) {
-          setRoomMessages((previous) =>
-            previous.map((prev) => {
-              return prev._id === message._id ? message : prev;
-            })
-          );
-        }
-        // If not yours append to end
-        else setRoomMessages((previous) => [...previous, message]);
-        scrollToBottom();
-      });
-      rootData.socket.on('new-member', (data) => {
-        if (rootData.user !== data._id) {
-          message.info('New user joined');
-        }
-      });
-      rootData.socket.on('typing', () => {
-        setTypingIndicator(true);
-      });
-      rootData.socket.on('finished-typing', () => {
-        setTypingIndicator(false);
-      });
-      rootData.socket.on('left-chat', () => {
-        message.info('A user left chat');
-      });
+      rootData.socket.on('typing', () => toggleTyping(true));
+      rootData.socket.on('left-chat', () => handleMemberLeave);
+      rootData.socket.on('finished-typing', () => toggleTyping(false));
+      rootData.socket.on('new-member', (data) => handleNewMember(data));
+      rootData.socket.on('new-message', (data) => handleNewMessage(data));
       setHasSetListeners(true);
     }
 
-    if (rootData.socket && rootData.user) setSocketListeners();
+    setSocketListeners();
+
+    return () => {
+      rootData.socket.off('typing');
+      rootData.socket.off('left-chat');
+      rootData.socket.off('new-member');
+      rootData.socket.off('new-message');
+      rootData.socket.off('finished-typing');
+    };
   }, [rootData.socket, rootData.user, scrollToBottom]);
 
   useLayoutEffect(() => {
@@ -138,10 +132,6 @@ function ChatRoom() {
     }
     setGlobalVh();
     window.addEventListener('resize', setGlobalVh);
-    window.onbeforeunload = () => {
-      console.log('%c  ChatRoom - Removing resize listener', 'background: red; color: #fefefe');
-      window.removeEventListener('resize', setGlobalVh);
-    };
   }, []);
 
   useEffect(() => {

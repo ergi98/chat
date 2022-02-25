@@ -7,14 +7,14 @@ import { useNavigate } from 'react-router-dom';
 // ANTD
 import { Button, message, Spin } from 'antd';
 
-// Components
-import PasteLinkDialog from '../../components/initial_screen/link_dialog/PasteLinkDialog';
-
 // Mongo
 import { createUserAndRoom } from '../../mongo/user';
 
 // Context
 import { useRootUpdate } from '../../RootContext';
+
+// Components
+import PasteLinkDialog from '../../components/initial_screen/link_dialog/PasteLinkDialog';
 
 function InitialScreen() {
   const navigate = useNavigate();
@@ -37,7 +37,6 @@ function InitialScreen() {
       redirectToWaitScreen(result.room._id);
     } catch (err) {
       message.error(err.message);
-    } finally {
       setIsCreating(false);
     }
   }
@@ -72,11 +71,11 @@ function InitialScreen() {
         </div>
       ) : (
         <div>
-          <Button onClick={handleCreate} type="primary" className={styles['create-btn']}>
-            Create Room
-          </Button>
           <Button onClick={() => toggleLinkDialog(true)} type="text" className={styles['link-btn']}>
             Enter room link
+          </Button>
+          <Button onClick={handleCreate} type="primary" className={styles['create-btn']}>
+            Create Room
           </Button>
         </div>
       )}

@@ -1,23 +1,23 @@
-const path = require("path");
+const path = require('path');
 
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const plugins = [
   new CleanWebpackPlugin(),
   new MiniCssExtractPlugin(),
   new HtmlWebpackPlugin({
-    template: "./public/index.html",
-  }),
+    template: './public/index.html'
+  })
 ];
 
-let mode = "development";
-let target = "web";
+let mode = 'development';
+let target = 'web';
 
-if (process.env.NODE_ENV === "production") {
-  mode = "production";
-  target = "browserslist";
+if (process.env.NODE_ENV === 'production') {
+  mode = 'production';
+  target = 'browserslist';
 }
 
 if (process.env.START) {
@@ -28,13 +28,13 @@ module.exports = {
   mode: mode,
   target: target,
   resolve: {
-    extensions: [".js", ".jsx", ".tsx", ".ts"],
+    extensions: ['.js', '.jsx', '.tsx', '.ts']
   },
-  entry: "./src/index.js",
+  entry: './src/index.js',
   output: {
-    publicPath: "/",
-    path: path.resolve(__dirname, "dist"),
-    assetModuleFilename: "images/[hash]][ext][query]",
+    publicPath: '/',
+    path: path.resolve(__dirname, 'dist'),
+    assetModuleFilename: 'images/[hash]][ext][query]'
   },
   plugins: plugins,
   module: {
@@ -43,8 +43,8 @@ module.exports = {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
-        },
+          loader: 'babel-loader'
+        }
       },
       {
         test: /\.(s[ac]|c)ss$/i,
@@ -52,17 +52,17 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: "",
-            },
+              publicPath: ''
+            }
           },
-          "css-loader",
-          "postcss-loader",
-          "sass-loader",
-        ],
+          'css-loader',
+          'postcss-loader',
+          'sass-loader'
+        ]
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/i,
-        type: "asset",
+        test: /\.(png|jpe?g|gif)$/i,
+        type: 'asset'
         // Set limit for inline
         // parser: {
         //   dataUrlCondition: {
@@ -70,17 +70,38 @@ module.exports = {
         //   },
         // },
       },
-    ],
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'babel-loader'
+          },
+          {
+            loader: 'react-svg-loader',
+            options: {
+              jsx: true,
+              svgo: {
+                plugins: [
+                  {
+                    cleanupIDs: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
   },
 
-  devtool: "source-map",
+  devtool: 'source-map',
   devServer: {
     static: {
-      directory: path.join(__dirname, "/dist"),
+      directory: path.join(__dirname, '/dist')
     },
     historyApiFallback: true,
     hot: true,
     compress: true,
-    port: 9090,
-  },
+    port: 9090
+  }
 };

@@ -6,15 +6,8 @@ import { ContextProvider } from './RootContext';
 // Theme
 import { getDeviceTheme, getSelectedTheme, setAppTheme } from './utilities/theme.utilities';
 
-// Router
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
 // Components
-import ChatRoom from './views/chat_room/ChatRoom';
-import JoinRoom from './views/join_room/JoinRoom';
-import NotFound from './views/not_found/NotFound';
-import WaitingRoom from './views/waiting_room/WaitingRoom';
-import InitialScreen from './views/initial_screen/InitialScreen';
+import AppRoutes from './views/routes/AppRoutes';
 
 const onDevicePreferenceChange = () => setAppTheme('device');
 
@@ -38,32 +31,11 @@ function App() {
     listenForChanges();
   }, []);
 
-  window.onbeforeunload = () => {
-    console.log('%c  App - Removing theme change listener', 'background: red; color: #fefefe');
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .removeEventListener('change', onDevicePreferenceChange);
-  };
-
   return (
     <React.StrictMode>
-      <BrowserRouter>
-        <ContextProvider>
-          <Routes>
-            <Route path="/" element={<InitialScreen />} />
-            <Route path="join" element={<JoinRoom />}>
-              <Route path=":roomId" element={<JoinRoom />} />
-            </Route>
-            <Route path="wait" element={<WaitingRoom />}>
-              <Route path=":roomId" element={<WaitingRoom />} />
-            </Route>
-            <Route path="chat" element={<ChatRoom />}>
-              <Route path=":roomId" element={<ChatRoom />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ContextProvider>
-      </BrowserRouter>
+      <ContextProvider>
+        <AppRoutes />
+      </ContextProvider>
     </React.StrictMode>
   );
 }

@@ -73,18 +73,6 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
     };
   }, [facingMode, imageBase64, videoRef]);
 
-  window.onbeforeunload = () => {
-    if (videoStream) {
-      console.log(
-        '%c  CameraModal - Stopping video stream (Before Unload)',
-        'background: red; color: #fefefe'
-      );
-      videoStream.getTracks()?.forEach((track) => {
-        if (track.readyState == 'live' && track.kind === 'video') track.stop();
-      });
-    }
-  };
-
   function flipCamera() {
     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
   }

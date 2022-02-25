@@ -26,7 +26,8 @@ const initialContext = {
   jwt: null,
   user: null,
   room: null,
-  socket: null
+  socket: null,
+  initialSetup: false
 };
 
 export function ContextProvider({ children }) {
@@ -42,27 +43,20 @@ export function ContextProvider({ children }) {
         updateRootContext({
           jwt: JWT,
           socket: socket,
+          initialSetup: true,
           user: userData._id,
           room: userData.roomId
         });
         socket.emit('new-member', JWT);
       } else {
         updateRootContext({
-          socket: socket
+          socket: socket,
+          initialSetup: true
         });
       }
     }
     initialSetup();
   }, []);
-
-  window.onbeforeunload = () => {
-    console.log(
-      '%c RootContext - Disconnecting Socket & Listeners',
-      'background: red; color: #fefefe'
-    );
-    socket.removeAllListeners();
-    socket.disconnect();
-  };
 
   function updateRootContext(data) {
     if (data === null) {

@@ -335,6 +335,34 @@ table {
 }
 
 .ant-input-clear-icon {
-  fill: #1890FF !important;
-  color: #1890FF !important;
+  fill: #1890ff !important;
+  color: #1890ff !important;
+}
+
+.primary-background {
+  height: 100vh;
+  background-image: linear-gradient(var(--primary) 20%, var(--darkest-bg));
+}
+
+.center-content {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+}
+
+.text {
+  color: var(--text-primary);
+}
+
+.secondary-text {
+  color: var(--text-primary);
+  opacity: 0.8;
 }

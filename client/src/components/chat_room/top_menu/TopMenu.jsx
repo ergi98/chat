@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
 import styles from './top-menu.module.css';
 
-// Mongo
-import { removeUserFromRoom } from '../../../mongo/room';
-
-// Context
-import { useRootUpdate } from '../../../RootContext.js';
-
 // ANTD
 import { Menu } from 'antd';
 
 // Router
 import { useNavigate } from 'react-router-dom';
 
-// Axios
-import { clearAxiosInstance } from '../../../../axios_config/axios-config';
-
 // Icons
 import { ToolOutlined, LogoutOutlined, LoadingOutlined } from '@ant-design/icons';
 
+// Utilities
+import { handleUserLeave } from '../../../utilities/auth.utilities';
+
 function TopMenu(props) {
   const navigate = useNavigate();
-
-  const updateRootData = useRootUpdate();
 
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -40,10 +32,7 @@ function TopMenu(props) {
   async function handleChatLeave() {
     try {
       setIsLeaving(true);
-      await removeUserFromRoom();
-      clearAxiosInstance();
-      localStorage.clear();
-      updateRootData(null);
+      await handleUserLeave();
       navigate(`/`, { replace: true });
     } catch (err) {
       console.log('Error', err);
