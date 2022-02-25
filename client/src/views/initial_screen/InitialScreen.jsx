@@ -47,8 +47,10 @@ function InitialScreen() {
     setShowLinkDialog(value);
   }
 
-  function redirectToChat(roomId) {
+  function redirectToChat(roomId, jwt) {
     setCurrentStatus('All set!. Redirecting you to your chat room.');
+    rootData.socket.emit('new-member', jwt);
+
     setTimeout(() => {
       navigate(`/chat/${roomId}`, { replace: true });
     }, 1000);

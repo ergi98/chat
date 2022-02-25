@@ -96,8 +96,8 @@ io.on("connection", (socket) => {
       socket.broadcast.to(decodedToken.roomId).emit("new-member", decodedToken);
     }
   });
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
+  socket.on("left-chat", (data) => {
+    socket.broadcast.to(data.roomId).emit("left-chat");
   });
   socket.on("sent-message", (message) => {
     io.to(message.roomId).emit("new-message", message);

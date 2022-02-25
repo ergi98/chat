@@ -32,7 +32,7 @@ function WaitingRoom() {
 
   useEffect(() => {
     function initialSetup() {
-      if (roomId) setRoomLink(`http://${window.location.host}/${roomId}`);
+      if (roomId) setRoomLink(`http://${window.location.host}/join/${roomId}`);
     }
     initialSetup();
   }, [roomId]);
@@ -58,13 +58,13 @@ function WaitingRoom() {
   const handleLeave = useCallback(async () => {
     try {
       setIsLeaving(true);
-      await handleUserLeave();
+      await handleUserLeave(rootData.socket, rootData.room);
       navigate(`/`, { replace: true });
     } catch (err) {
       message.error(err.message);
       setIsLeaving(false);
     }
-  }, [setIsLeaving, navigate]);
+  }, [rootData.socket, rootData.room, setIsLeaving, navigate]);
 
   function copyLink() {
     try {

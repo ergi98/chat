@@ -4,17 +4,17 @@ import styles from './top-menu.module.css';
 // ANTD
 import { Menu } from 'antd';
 
-// Router
-import { useNavigate } from 'react-router-dom';
-
 // Icons
 import { ToolOutlined, LogoutOutlined, LoadingOutlined } from '@ant-design/icons';
 
 // Utilities
 import { handleUserLeave } from '../../../utilities/auth.utilities';
 
+// Root
+import { useRoot } from '../../../RootContext';
+
 function TopMenu(props) {
-  const navigate = useNavigate();
+  const rootData = useRoot();
 
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -32,11 +32,9 @@ function TopMenu(props) {
   async function handleChatLeave() {
     try {
       setIsLeaving(true);
-      await handleUserLeave();
-      navigate(`/`, { replace: true });
+      await handleUserLeave(rootData.socket, rootData.room);
     } catch (err) {
       console.log('Error', err);
-    } finally {
       setIsLeaving(false);
     }
   }

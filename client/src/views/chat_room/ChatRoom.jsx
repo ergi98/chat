@@ -17,6 +17,8 @@ import { v4 } from 'uuid';
 
 // ANTD
 import { message } from 'antd';
+import { getRoom } from '../../mongo/room';
+import NoUsersLeftModal from '../../components/chat_room/no_users_modal/NoUsersLeftModal';
 
 async function fetchMessages(date = null) {
   try {
@@ -39,13 +41,13 @@ function ChatRoom() {
   const [roomMessages, setRoomMessages] = useState([]);
   const [lastFetchDate, setLastFetchDate] = useState(null);
   const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
+  const [showNoUsersLeft, setShowNoUsersLeft] = useState(false);
 
   const [hasSetListeners, setHasSetListeners] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState(false);
 
   useEffect(() => {
     function handleNewMessage(message) {
-      console.log('HERERERERE')
       // If yours update
       if (message.sentBy === rootData.user) {
         setRoomMessages((previous) =>
@@ -62,6 +64,7 @@ function ChatRoom() {
     function handleNewMember(data) {
       if (rootData.user !== data._id) {
         message.info('New user joined');
+        setShowNoUsersLeft(false);
       }
     }
 
@@ -69,14 +72,20 @@ function ChatRoom() {
       setTypingIndicator(value);
     }
 
-    function handleMemberLeave() {
-      message.info('A user left chat');
+    async function handleMemberLeave() {
+      try {
+        let { room } = await getRoom();
+        if (room && room?.members?.length === 1) setShowNoUsersLeft(true);
+        else message.info('A user left chat');
+      } catch (err) {
+        message.error(err.message);
+      }
     }
 
     function setSocketListeners() {
       console.log('%c ChatRoom - Setting socket listeners', 'color: #bf55da');
       rootData.socket.on('typing', () => toggleTyping(true));
-      rootData.socket.on('left-chat', () => handleMemberLeave);
+      rootData.socket.on('left-chat', async () => await handleMemberLeave());
       rootData.socket.on('finished-typing', () => toggleTyping(false));
       rootData.socket.on('new-member', (data) => handleNewMember(data));
       rootData.socket.on('new-message', (data) => handleNewMessage(data));
@@ -124,14 +133,17 @@ function ChatRoom() {
 
   useLayoutEffect(() => {
     function setGlobalVh() {
-      console.log('%c ChatRoom - Setting global vh listener', 'color: #bf55da');
-
       let vh = window.innerHeight * 0.01;
       let root = document.querySelector(':root');
       root.style.setProperty('--vh', `${vh}px`);
+      window.addEventListener('resize', setGlobalVh);
     }
+
     setGlobalVh();
-    window.addEventListener('resize', setGlobalVh);
+
+    return () => {
+      window.removeEventListener('resize', setGlobalVh);
+    };
   }, []);
 
   useEffect(() => {
@@ -232,6 +244,7 @@ function ChatRoom() {
         ) : null}
       </Chat>
       <Send ref={sendRef} addMessage={addNewMessage} scrollToBottom={scrollToBottom} />
+      {showNoUsersLeft ? <NoUsersLeftModal show={showNoUsersLeft} /> : null}
     </div>
   );
 }

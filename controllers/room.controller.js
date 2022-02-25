@@ -74,11 +74,10 @@ export default class RoomController {
             recursive: true,
             force: true,
           });
-
-          // TODO: Delete user media as well
         }
         await UserSchema.findByIdAndDelete(req.headers.user);
       });
+
       res.status(200).send({ success: true });
     } catch (err) {
       console.log(err);

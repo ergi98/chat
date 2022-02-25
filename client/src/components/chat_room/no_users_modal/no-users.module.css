@@ -1,0 +1,39 @@
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 46px;
+}
+
+.leave-btn {
+  color: var(--text-primary);
+  margin-right: 4px;
+}
+
+.leave-btn:hover {
+  color: var(--error);
+}
+
+.copy-btn {
+  margin-left: 4px;
+}
+
+.emoji {
+  font-size: 72px;
+  text-align: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.warning {
+  color: var(--error);
+  margin-top: 24px;
+  opacity: 0.8;
+}

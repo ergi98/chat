@@ -39,6 +39,7 @@ export function ContextProvider({ children }) {
       const JWT = JSON.parse(localStorage.getItem('jwt'));
       if (JWT) {
         let userData = jwt_decode(JWT);
+        socket.emit('new-member', JWT);
         setTokenInterceptor(JWT);
         updateRootContext({
           jwt: JWT,
@@ -47,7 +48,6 @@ export function ContextProvider({ children }) {
           user: userData._id,
           room: userData.roomId
         });
-        socket.emit('new-member', JWT);
       } else {
         updateRootContext({
           socket: socket,

@@ -36,8 +36,8 @@ function JoinRoom() {
         message.error(err.message);
       }
     }
-    joinRoom(roomId);
-  }, [roomId, rootData.socket, updateRootData, navigate]);
+    !rootData.jwt && joinRoom(roomId);
+  }, [roomId, rootData.socket, rootData.jwt, updateRootData, navigate]);
 
   return (
     <main className={`height-full ${styles['joining-screen']}`}>

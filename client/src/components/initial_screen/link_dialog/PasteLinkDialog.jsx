@@ -59,7 +59,7 @@ function PasteLinkDialog(props) {
     let msg = 'The link you entered is not a valid room link!';
     if (!url || typeof url !== 'string') throw new Error(msg);
     let id;
-    let bits = url.split(window.location.href);
+    let bits = url.split(`${window.location.href}join/`);
     bits.length === 2 && (id = bits[1]);
     if (!id || typeof id !== 'string') throw new Error(msg);
     return id;
@@ -82,7 +82,7 @@ function PasteLinkDialog(props) {
       let id = getRoomIdFromUrl(roomLink);
       let data = await createUserAndAssignToRoom(id);
       updateRootData({
-        jwt: data.jwt,
+        jwt: data.token,
         user: data.user._id,
         room: data.room._id
       });
@@ -90,7 +90,7 @@ function PasteLinkDialog(props) {
         type: 'success',
         message: 'All set! Redirecting you to your chat room.'
       });
-      props.success(data.room._id);
+      props.success(data.room._id, data.token);
     } catch (err) {
       setStatus({
         type: 'error',
