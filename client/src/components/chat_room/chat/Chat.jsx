@@ -63,8 +63,7 @@ const Chat = React.forwardRef((props, ref) => {
         <div className={styles.loading}>
           <Spin size="large" />
         </div>
-      ) : null}
-      {props.messages.length ? (
+      ) : props.messages.length ? (
         <>
           {Object.entries(groupedMessages).map(([date, messageArray]) => (
             <div key={date}>

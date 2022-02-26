@@ -7,13 +7,22 @@ const router = express.Router();
 
 // Controllers
 import UploadController from "../controllers/upload.controller.js";
+import tokenMiddleware from "../middleware/token.js";
 
 router
   .route("/upload-image")
-  .post(imageUpload.single("image"), UploadController.uploadImage);
+  .post(
+    tokenMiddleware,
+    imageUpload.single("image"),
+    UploadController.uploadImage
+  );
 router
   .route("/upload-audio")
-  .post(audioUpload.single("audio"), UploadController.uploadAudio);
+  .post(
+    tokenMiddleware,
+    audioUpload.single("audio"),
+    UploadController.uploadAudio
+  );
 
 // router.route("/get-user").get(UploadController.uploadVoiceRecording)
 

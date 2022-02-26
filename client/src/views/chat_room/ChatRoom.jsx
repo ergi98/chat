@@ -36,6 +36,7 @@ function ChatRoom() {
 
   const chatRef = useRef(null);
   const sendRef = useRef(null);
+  const endOfMessages = useRef(null);
 
   const [loading, setLoading] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
@@ -95,41 +96,40 @@ function ChatRoom() {
     setSocketListeners();
 
     return () => {
-      rootData.socket.off('typing');
-      rootData.socket.off('left-chat');
-      rootData.socket.off('new-member');
-      rootData.socket.off('new-message');
-      rootData.socket.off('finished-typing');
+      rootData?.socket?.off('typing');
+      rootData?.socket?.off('left-chat');
+      rootData?.socket?.off('new-member');
+      rootData?.socket?.off('new-message');
+      rootData?.socket?.off('finished-typing');
     };
   }, [rootData.socket, rootData.user, scrollToBottom]);
 
   useLayoutEffect(() => {
-    let observer, localSendRef, localChatRef;
+    let observer,
+      localSendRef = sendRef.current,
+      localChatRef = chatRef.current;
 
-    function attachResizeObserver(expandingElRef, shrinkingElRef) {
+    function attachResizeObserver(observerVar, expandingElRef, shrinkingElRef) {
       console.log('%c ChatRoom - Resize observer', 'color: #bf55da');
       // Resize the chat depending on the input field height
-      observer = new ResizeObserver((entries) => {
+      observerVar = new ResizeObserver((entries) => {
         for (let entry of entries) {
+          // TODO:
           shrinkingElRef.style.height = `calc(var(--vh, 1vh) * 100 - ${entry.target.offsetHeight}px - 55px)`;
         }
       });
-      observer.observe(expandingElRef);
+      observerVar.observe(expandingElRef);
     }
 
-    if (sendRef?.current && chatRef?.current) {
-      let localSendRef = sendRef.current;
-      let localChatRef = chatRef.current;
-      attachResizeObserver(localSendRef, localChatRef);
-    }
+    attachResizeObserver(observer, localSendRef, localChatRef);
 
     return () => {
       if (localChatRef?.current && observer) {
         console.log('%c  ChatRoom - Removing observer', 'background: red; color: #fefefe');
-        observer.unobserve(localSendRef);
+        observer?.unobserve(localSendRef);
       }
     };
-  }, [sendRef]);
+  }, []);
 
   useLayoutEffect(() => {
     function setGlobalVh() {
@@ -148,7 +148,6 @@ function ChatRoom() {
 
   useEffect(() => {
     async function initialFetch() {
-      console.log('%c ChatRoom - Fetching the initial messages', 'color: #bf55da');
       setLoading(true);
       let { date, messages } = await fetchMessages();
       setLastFetchDate(date);
@@ -159,12 +158,14 @@ function ChatRoom() {
     hasSetListeners && initialFetch();
   }, [hasSetListeners, scrollToBottom]);
 
+  // TODO:
   useEffect(() => {
     async function checkIfScrolledToTop(event) {
       if (event.target.scrollTop === 0) {
         if (hasMoreToFetch === false) return;
         setLoading(true);
         let { date, messages } = await fetchMessages(lastFetchDate);
+
         setLastFetchDate(date);
         setHasMoreToFetch(!!messages.length);
         setRoomMessages((prev) => [...messages, ...prev]);
@@ -230,10 +231,8 @@ function ChatRoom() {
   }
 
   const scrollToBottom = useCallback(() => {
-    if (chatRef?.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [chatRef]);
+    endOfMessages?.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [endOfMessages]);
 
   return (
     <div className={styles['chat-room']}>
@@ -242,6 +241,7 @@ function ChatRoom() {
         {typingIndicator ? (
           <div className={styles['typing-indicator']}>Friend is typing ...</div>
         ) : null}
+        <div ref={endOfMessages}></div>
       </Chat>
       <Send ref={sendRef} addMessage={addNewMessage} scrollToBottom={scrollToBottom} />
       {showNoUsersLeft ? <NoUsersLeftModal show={showNoUsersLeft} /> : null}
