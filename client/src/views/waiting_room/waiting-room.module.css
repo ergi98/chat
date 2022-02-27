@@ -13,6 +13,13 @@
   opacity: 0.8;
 }
 
+.link {
+  max-width: 95%;
+  line-height: 20px;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+
 .waiting-title {
   font-size: 28px;
   letter-spacing: 2px;

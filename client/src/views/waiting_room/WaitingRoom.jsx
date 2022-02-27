@@ -85,7 +85,10 @@ function WaitingRoom() {
         Waiting for other members to join you! <br />
         Invite a friend to chat together by sending them the link below.
       </div>
-      <div className={styles.link}>{roomLink}</div>
+      <div
+        dangerouslySetInnerHTML={{ __html: `http://${window.location.host}/join/<wbr/>${roomId}` }}
+        className={styles.link}
+      />
       <div className={styles.buttons}>
         <Button onClick={handleLeave} loading={isLeaving} type="text" className={styles.leave}>
           Leave Room

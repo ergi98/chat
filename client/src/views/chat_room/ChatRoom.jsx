@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import styles from './chat-room.module.css';
 
 // Components
@@ -23,15 +23,16 @@ import { Button, message } from 'antd';
 // Utilities
 import { throttle } from '../../utilities/general.utilities';
 
-async function fetchMessages(date = null) {
-  try {
-    let data = await getMessagesByChunks(date);
-    return data;
-    // chatRef.current.scrollTop = 50 * messages.length;
-  } catch (err) {
-    console.log(err);
-    message.error(err.message);
+function isOverflowing(ref) {
+  let value = false;
+  // Is overflowing
+  if (ref.current.scrollHeight > ref.current.clientHeight) {
+    // Is not at the end
+    if (ref.current.scrollTop !== ref.current.scrollHeight) {
+      value = true;
+    }
   }
+  return value;
 }
 
 function ChatRoom() {
@@ -43,14 +44,11 @@ function ChatRoom() {
 
   const [loading, setLoading] = useState(false);
   const [roomMessages, setRoomMessages] = useState([]);
-  const [lastFetchDate, setLastFetchDate] = useState(null);
+  const [lastFetchDate, setLastFetchDate] = useState(undefined);
   const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
-  const [showNoUsersLeft, setShowNoUsersLeft] = useState(false);
-
   const [showNewMessage, setShowNewMessage] = useState(false);
-
-  const [hasSetListeners, setHasSetListeners] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState(false);
+  const [showNoUsersLeft, setShowNoUsersLeft] = useState(false);
 
   // Socket listeners
   useEffect(() => {
@@ -64,8 +62,10 @@ function ChatRoom() {
         );
       }
       // If not yours append to end
-      else setRoomMessages((previous) => [...previous, message]);
-      isOverflowing(chatRef) && setShowNewMessage(true);
+      else {
+        setRoomMessages((previous) => [...previous, message]);
+        isOverflowing(chatRef) && setShowNewMessage(true);
+      }
     }
 
     function handleNewMember(data) {
@@ -90,13 +90,11 @@ function ChatRoom() {
     }
 
     function setSocketListeners() {
-      console.log('%c ChatRoom - Setting socket listeners', 'color: #bf55da');
       rootData.socket.on('typing', () => toggleTyping(true));
       rootData.socket.on('left-chat', async () => await handleMemberLeave());
       rootData.socket.on('finished-typing', () => toggleTyping(false));
       rootData.socket.on('new-member', (data) => handleNewMember(data));
       rootData.socket.on('new-message', (data) => handleNewMessage(data));
-      setHasSetListeners(true);
     }
 
     setSocketListeners();
@@ -152,55 +150,10 @@ function ChatRoom() {
     };
   }, []);
 
-  // Initial Message Fetch
-  useEffect(() => {
-    async function initialFetch() {
-      setLoading(true);
-      let { date, messages } = await fetchMessages();
-      setLastFetchDate(date);
-      setRoomMessages((prev) => [...messages, ...prev]);
-      setLoading(false);
-      if (messages?.length && isOverflowing(chatRef)) setShowNewMessage(true);
-    }
-    hasSetListeners && initialFetch();
-  }, [hasSetListeners]);
-
-  // Fetch Messages on top scroll
-  // TODO:
-  useEffect(() => {
-    async function checkIfScrolledToTop(event) {
-      if (event.target.scrollTop === 0) {
-        if (hasMoreToFetch === false) return;
-        setLoading(true);
-        let { date, messages } = await fetchMessages(lastFetchDate);
-        setLastFetchDate(date);
-        setHasMoreToFetch(!!messages.length);
-        setRoomMessages((prev) => [...messages, ...prev]);
-        setLoading(false);
-      }
-    }
-
-    if (chatRef?.current) {
-      console.log('CHAT REF', chatRef.current);
-      console.log('%c ChatRoom - Adding scroll top event listener', 'color: #bf55da');
-      // chatCurrent.removeEventListener('scroll', checkIfScrolledToTop);
-      chatRef.current.addEventListener('scroll', checkIfScrolledToTop);
-    }
-
-    return () => {
-      if (chatRef?.current) {
-        console.log(
-          '%c  ChatRoom - Removing scroll top event listener',
-          'background: red; color: #fefefe'
-        );
-        console.log(chatRef.current);
-        chatRef.current.removeEventListener('scroll', checkIfScrolledToTop);
-      }
-    };
-  }, [chatRef, hasMoreToFetch, lastFetchDate]);
-
   // Hide new message on bottom scroll
   useEffect(() => {
+    let chatElement = chatRef.current;
+
     function checkIfScrolledToBottom(event) {
       let current = event.target.scrollHeight - event.target.scrollTop;
       let max = event.target.clientHeight;
@@ -210,27 +163,33 @@ function ChatRoom() {
     }
 
     function addScrollBottomListener() {
-      chatRef.current.addEventListener('scroll', throttle(checkIfScrolledToBottom, 500));
+      chatElement.addEventListener('scroll', throttle(checkIfScrolledToBottom, 500));
     }
 
     addScrollBottomListener();
 
     return () => {
-      chatRef.current.removeEventListener('scroll', throttle(checkIfScrolledToBottom, 500));
+      chatElement.removeEventListener('scroll', throttle(checkIfScrolledToBottom, 500));
     };
   }, []);
 
-  function isOverflowing(ref) {
-    let value = false;
-    // Is overflowing
-    if (ref.current.scrollHeight > ref.current.clientHeight) {
-      // Is not at the end
-      if (ref.current.scrollTop !== ref.current.scrollHeight) {
-        value = true;
+  const fetchMessages = useCallback(async () => {
+    if (!hasMoreToFetch) return;
+    try {
+      setLoading(true);
+      let { date, messages } = await getMessagesByChunks(lastFetchDate);
+      setLastFetchDate(date);
+      if (messages?.length < 50) setHasMoreToFetch(false);
+      if (messages?.length !== 0) {
+        setRoomMessages((prev) => [...messages, ...prev]);
+        isOverflowing(chatRef) && setShowNewMessage(true);
       }
+    } catch (err) {
+      message.error(err.message);
+    } finally {
+      setLoading(false);
     }
-    return value;
-  }
+  }, [chatRef, hasMoreToFetch, lastFetchDate]);
 
   async function addNewMessage({ text, imageData, audio }) {
     let tempMessageId = v4();
@@ -267,6 +226,8 @@ function ChatRoom() {
           return prev._id === tempMessageId ? { ...message, status: 'error' } : prev;
         })
       );
+    } finally {
+      scrollToBottom();
     }
   }
 
@@ -278,7 +239,7 @@ function ChatRoom() {
   return (
     <div className={styles['chat-room']}>
       <TopRibbon />
-      <Chat ref={chatRef} messages={roomMessages} loading={loading}>
+      <Chat ref={chatRef} messages={roomMessages} loading={loading} loadMore={fetchMessages}>
         {typingIndicator && !showNewMessage ? (
           <div className={styles['typing-indicator']}>Friend is typing ...</div>
         ) : null}

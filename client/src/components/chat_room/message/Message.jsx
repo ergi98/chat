@@ -5,7 +5,7 @@ import styles from './message.module.css';
 import { useRoot } from '../../../RootContext';
 
 // Animation
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Antd
 import { Button, Image } from 'antd';
@@ -18,6 +18,8 @@ import AudioPlayer from '../audio_player/AudioPlayer';
 function Message({ message }) {
   const rootData = useRoot();
 
+  console.log('Rerendered');
+
   function displayDate(date) {
     let localDate = new Date(date);
     let hours = localDate.getHours().toString().padStart(2, '0');
@@ -28,7 +30,7 @@ function Message({ message }) {
 
   let variants = {
     initial: {
-      x: message.sentBy === rootData.user ? '50%' : '-50%',
+      x: message.sentBy === rootData.user ? '20px' : '-20px',
       rotate: '20deg'
     },
     final: {
@@ -107,19 +109,23 @@ function Message({ message }) {
 
   // TODO: Animate presence
   return (
-    <motion.div initial="initial" animate="final" variants={variants} className={messageStyles}>
-      <div className={styles.content}>
-        {messageImage}
-        {spacer}
-        {messageText}
-        {messageAudio}
-        <div className={styles['bottom-row']}>
-          <span className={styles['sent-at']}>{messageDate}</span>
-          {messageStatus}
-        </div>
-        {resendOption}
-      </div>
-    </motion.div>
+    <AnimatePresence>
+      {message && (
+        <motion.div initial="initial" animate="final" variants={variants} className={messageStyles}>
+          <div className={styles.content}>
+            {messageImage}
+            {spacer}
+            {messageText}
+            {messageAudio}
+            <div className={styles['bottom-row']}>
+              <span className={styles['sent-at']}>{messageDate}</span>
+              {messageStatus}
+            </div>
+            {resendOption}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
