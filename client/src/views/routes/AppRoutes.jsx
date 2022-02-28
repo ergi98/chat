@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 
 // Router
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -7,14 +7,14 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useRoot } from '../../RootContext';
 
 // Components
-import PublicRoute from './PublicRoute';
-import ChatRoom from '../chat_room/ChatRoom';
-import JoinRoom from '../join_room/JoinRoom';
-import NotFound from '../not_found/NotFound';
 import LoadingScreen from '../LoadingScreen';
-import ProtectedRoute from './ProtectedRoute';
-import WaitingRoom from '../waiting_room/WaitingRoom';
-import InitialScreen from '../initial_screen/InitialScreen';
+const PublicRoute = lazy(() => import('./PublicRoute'));
+const ChatRoom = lazy(() => import('../chat_room/ChatRoom'));
+const JoinRoom = lazy(() => import('../join_room/JoinRoom'));
+const NotFound = lazy(() => import('../not_found/NotFound'));
+const ProtectedRoute = lazy(() => import('./ProtectedRoute'));
+const WaitingRoom = lazy(() => import('../waiting_room/WaitingRoom'));
+const InitialScreen = lazy(() => import('../initial_screen/InitialScreen'));
 
 function AppRoutes() {
   const rootData = useRoot();
@@ -51,23 +51,25 @@ function AppRoutes() {
     <>
       {rootData.initialSetup ? (
         <BrowserRouter>
-          <Routes>
-            {appRoutes.map((route) =>
-              route.private ? (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={<ProtectedRoute path={route.path}>{route.element}</ProtectedRoute>}
-                />
-              ) : (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={<PublicRoute path={route.path}>{route.element}</PublicRoute>}
-                />
-              )
-            )}
-          </Routes>
+          <Suspense fallback={<LoadingScreen />}>
+            <Routes>
+              {appRoutes.map((route) =>
+                route.private ? (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={<ProtectedRoute path={route.path}>{route.element}</ProtectedRoute>}
+                  />
+                ) : (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={<PublicRoute path={route.path}>{route.element}</PublicRoute>}
+                  />
+                )
+              )}
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       ) : (
         <LoadingScreen />
