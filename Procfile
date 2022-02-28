@@ -1,2 +1,2 @@
-server: npm i && npm serve:production
-web: cd client && npm serve:production
+server: npm i && npm run serve:production
+web: cd client && npm run serve:production
