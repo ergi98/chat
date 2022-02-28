@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "start": "START=true webpack serve",
+    "start": "START=false webpack serve",
     "watch": "START=true webpack --watch",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
     "build-dev": "webpack",
