@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -9,6 +10,9 @@ const plugins = [
   new MiniCssExtractPlugin(),
   new HtmlWebpackPlugin({
     template: './public/index.html'
+  }),
+  new webpack.ProvidePlugin({
+    process: 'process/browser'
   })
 ];
 

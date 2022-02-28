@@ -44,7 +44,7 @@ function Message({ message }) {
 
     return (
       <Image
-        src={`http://${window.location.hostname}:5050/${message.image}`}
+        src={`http://${window.location.hostname}:${process.env.PORT || 5050}/${message.image}`}
         className={styles['message-image']}
         preview={false}
         width={320}
@@ -104,7 +104,11 @@ function Message({ message }) {
 
   const messageAudio = useMemo(() => {
     if (!message.audio) return null;
-    return <AudioPlayer src={`http://${window.location.hostname}:5050/${message.audio}`} />;
+    return (
+      <AudioPlayer
+        src={`http://${window.location.hostname}:${process.env.PORT || 5050}/${message.audio}`}
+      />
+    );
   }, [message.audio]);
 
   // TODO: Animate presence
