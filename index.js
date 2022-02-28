@@ -2,7 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 
-import { dirname } from "path";
+import { dirname, resolve } from "path";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 
@@ -46,7 +46,7 @@ const __dirname = dirname(__filename);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("/client/dist"));
   app.get("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+    res.sendFile(resolve(__dirname, "client", "dist", "index.html"));
   });
 }
 
