@@ -2,10 +2,10 @@
   "private": true,
   "scripts": {
     "start": "START=true webpack serve",
+    "serve:production": "START=false webpack serve",
     "watch": "START=true webpack --watch",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
     "build-dev": "webpack",
-    "serve:production": "serve -s dist",
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
