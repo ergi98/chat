@@ -43,13 +43,6 @@ const io = new Server(server, {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("/client/dist"));
-  app.get("*", function (req, res) {
-    res.sendFile(resolve(__dirname, "client", "dist", "index.html"));
-  });
-}
-
 app.use(cors());
 app.use(express.json());
 
@@ -60,6 +53,13 @@ app.use("/", userRouter);
 app.use("/", roomRouter);
 app.use("/", messageRouter);
 app.use("/", uploadRouter);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("/client/dist"));
+  app.get("*", function (req, res) {
+    res.sendFile(resolve(__dirname, "client", "dist", "index.html"));
+  });
+}
 
 io.on("connection", (socket) => {
   socket.on("new-member", (jwt) => {
