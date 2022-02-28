@@ -43,9 +43,12 @@ const io = new Server(server, {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.get("/*", function (req, res) {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("/client/dist"));
+  app.get("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+  });
+}
 
 app.use(cors());
 app.use(express.json());
