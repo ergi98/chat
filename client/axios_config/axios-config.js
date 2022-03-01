@@ -3,12 +3,7 @@ import axios from 'axios';
 
 const AxiosInstance = axios.create();
 
-let mode = process.env.NODE_ENV;
-
-AxiosInstance.defaults.baseURL =
-  mode === 'production'
-    ? `http://${window.location.hostname}/`
-    : `http://${window.location.hostname}:5050/`;
+AxiosInstance.defaults.baseURL = process.env.PROXY;
 
 AxiosInstance.interceptors.response.use(successInterceptor, errorInterceptor);
 
