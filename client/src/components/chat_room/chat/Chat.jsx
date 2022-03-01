@@ -107,7 +107,7 @@ const Chat = React.forwardRef(({ loadMore, messages, loading, children }, ref) =
 
   return (
     <div ref={ref} className={styles.chat}>
-      <div ref={topRef}>Hello</div>
+      <div ref={topRef}></div>
       {loading ? (
         <div className={styles.loading}>
           <Spin size="large" />
