@@ -86,6 +86,5 @@ io.on("connection", (socket) => {
 const port = process.env.PORT || 5050;
 
 server.listen(port, () => {
-  console.log(process.env.NODE_ENV);
   console.log(`Listening on port ${port}`);
 });

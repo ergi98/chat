@@ -9,7 +9,12 @@ import io from 'socket.io-client';
 // Axios
 import { setTokenInterceptor } from '../axios_config/axios-config';
 
-const socket = io.connect(`http://${window.location.hostname}:${process.env.PORT || 5050}`);
+const socketUrl =
+  process.env.NODE_ENV === 'production'
+    ? `http://${window.location.hostname}`
+    : `http://${window.location.hostname}/:5050`;
+
+const socket = io.connect(socketUrl);
 
 const RootContext = createContext();
 const RootUpdateContext = createContext();
