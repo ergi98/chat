@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './join-room.module.css';
 
 // Navigation
@@ -20,11 +20,25 @@ function JoinRoom() {
   const rootData = useRoot();
   const updateRootData = useRootUpdate();
 
+  const [data, setData] = useState(null);
+
   useEffect(() => {
-    async function joinRoom(roomId) {
+    async function create() {
       try {
-        if (!roomId) return;
+        if (data || rootData.jwt) return;
         let data = await createUserAndAssignToRoom(roomId);
+        setData(data);
+      } catch (err) {
+        message.error(err.message);
+      }
+    }
+    create();
+  }, [rootData.jwt, roomId]);
+
+  useEffect(() => {
+    async function joinRoom() {
+      if (!data) return;
+      try {
         updateRootData({
           jwt: data.jwt,
           user: data.user._id,
@@ -36,8 +50,8 @@ function JoinRoom() {
         message.error(err.message);
       }
     }
-    !rootData.jwt && joinRoom(roomId);
-  }, [roomId, rootData.socket, rootData.jwt, updateRootData, navigate]);
+    joinRoom();
+  }, [data, rootData.socket, updateRootData, navigate]);
 
   return (
     <main className={`height-full ${styles['joining-screen']}`}>
