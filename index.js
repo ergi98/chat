@@ -55,8 +55,8 @@ app.use("/", messageRouter);
 app.use("/", uploadRouter);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("/client/dist"));
-  app.get("*", function (req, res) {
+  app.use(express.static(resolve(__dirname, "client", "dist"), { index: "_" }));
+  app.get("/*", function (req, res) {
     res.sendFile(resolve(__dirname, "client", "dist", "index.html"));
   });
 }
@@ -86,5 +86,6 @@ io.on("connection", (socket) => {
 const port = process.env.PORT || 5050;
 
 server.listen(port, () => {
+  console.log(process.env.NODE_ENV);
   console.log(`Listening on port ${port}`);
 });
