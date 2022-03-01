@@ -9,7 +9,8 @@ import io from 'socket.io-client';
 // Axios
 import { setTokenInterceptor } from '../axios_config/axios-config';
 
-const socket = io.connect(process.env.PROXY || `http://${window.location.hostname}:5050`);
+// eslint-disable-next-line no-undef
+const socket = io.connect(process.env.REACT_APP_PROXY);
 
 const RootContext = createContext();
 const RootUpdateContext = createContext();

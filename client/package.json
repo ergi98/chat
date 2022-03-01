@@ -1,12 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "start": "START=true webpack serve",
-    "serve:production": "START=false webpack serve",
-    "watch": "START=true webpack --watch",
+    "start": "webpack serve",
+    "watch": "webpack --watch",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
-    "build-dev": "webpack",
-    "build": "NODE_ENV=production webpack"
+    "build:dev": "webpack",
+    "build": "NODE_ENV=production webpack",
+    "serve:production": "START=false webpack serve"
   },
   "dependencies": {
     "antd": "4.18.4",

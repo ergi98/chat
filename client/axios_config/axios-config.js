@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const AxiosInstance = axios.create();
 
-AxiosInstance.defaults.baseURL = process.env.PROXY || `http://${window.location.hostname}:5050/`;
+// eslint-disable-next-line no-undef
+AxiosInstance.defaults.baseURL = process.env.REACT_APP_PROXY;
 
 AxiosInstance.interceptors.response.use(successInterceptor, errorInterceptor);
 

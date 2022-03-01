@@ -2,18 +2,22 @@
 const path = require('path');
 const webpack = require('webpack');
 
+require('dotenv').config({ path: '../.env' }); 
+
+
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+
 const plugins = [
   new CleanWebpackPlugin(),
   new MiniCssExtractPlugin(),
   new HtmlWebpackPlugin({
     template: './public/index.html'
   }),
-  new webpack.ProvidePlugin({
-    process: 'process/browser'
+  new webpack.DefinePlugin({
+    'process.env': JSON.stringify(process.env)
   })
 ];
 

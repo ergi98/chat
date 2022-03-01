@@ -15,8 +15,6 @@ import { ExclamationCircleFilled, LoadingOutlined, CheckOutlined } from '@ant-de
 // Components
 import AudioPlayer from '../audio_player/AudioPlayer';
 
-const appUrl = process.env.PROXY || `http://${window.location.hostname}:5050/`;
-
 function Message({ message }) {
   const rootData = useRoot();
 
@@ -46,7 +44,8 @@ function Message({ message }) {
 
     return (
       <Image
-        src={`${appUrl}${message.image}`}
+        // eslint-disable-next-line no-undef
+        src={`${process.env.REACT_APP_PROXY}${message.image}`}
         className={styles['message-image']}
         preview={false}
         width={320}
@@ -106,7 +105,8 @@ function Message({ message }) {
 
   const messageAudio = useMemo(() => {
     if (!message.audio) return null;
-    return <AudioPlayer src={`${appUrl}/${message.audio}`} />;
+    // eslint-disable-next-line no-undef
+    return <AudioPlayer src={`${process.env.REACT_APP_PROXY}${message.audio}`} />;
   }, [message.audio]);
 
   // TODO: Animate presence
