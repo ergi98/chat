@@ -68,10 +68,12 @@ function WaitingRoom() {
 
   function copyLink() {
     try {
-      navigator.clipboard.writeText(
-        `Hey lets chat together.` + `Click the link below to join me! \n` + roomLink
-      );
-      message.success('Room link copied!');
+      navigator.clipboard
+        .writeText(`Hey lets chat together.` + `Click the link below to join me! \n` + roomLink)
+        .then(
+          () => message.success('Room link copied!'),
+          () => message.success('Could not copy room link :(')
+        );
     } catch (err) {
       console.log(err);
       message.success('Could not copy room link :(');

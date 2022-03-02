@@ -24,45 +24,35 @@ function PasteLinkDialog(props) {
   });
 
   useEffect(() => {
+    function copyLink() {
+      navigator.clipboard.readText().then(
+        (text) => {
+          if (text) {
+            let bits = text.split('\n');
+            if (bits.length) {
+              let url = bits[1];
+              if (url && url?.includes(window.location.href)) {
+                setRoomLink(url);
+                setStatus({
+                  type: 'success',
+                  message: 'We found a link in your clipboard and pasted it for you!'
+                });
+              }
+            }
+          }
+        },
+        (err) => console.log(err)
+      );
+    }
     function getLinkFromClipboard() {
       try {
         if (navigator.permissions) {
           navigator.permissions.query({ name: 'clipboard-read' }).then((result) => {
             if (result.state == 'granted' || result.state == 'prompt') {
-              navigator.clipboard.readText().then((text) => {
-                if (text) {
-                  let bits = text.split('\n');
-                  if (bits.length) {
-                    let url = bits[1];
-                    if (url && url?.includes(window.location.href)) {
-                      setRoomLink(url);
-                      setStatus({
-                        type: 'success',
-                        message: 'We found a link in your clipboard and pasted it for you!'
-                      });
-                    }
-                  }
-                }
-              });
+              copyLink();
             }
           });
-        } else if (navigator.clipboard) {
-          navigator.clipboard.readText().then((text) => {
-            if (text) {
-              let bits = text.split('\n');
-              if (bits.length) {
-                let url = bits[1];
-                if (url && url?.includes(window.location.href)) {
-                  setRoomLink(url);
-                  setStatus({
-                    type: 'success',
-                    message: 'We found a link in your clipboard and pasted it for you!'
-                  });
-                }
-              }
-            }
-          });
-        }
+        } else copyLink();
       } catch (err) {
         console.log(err);
       }
