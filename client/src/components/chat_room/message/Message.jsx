@@ -18,8 +18,6 @@ import AudioPlayer from '../audio_player/AudioPlayer';
 function Message({ message }) {
   const rootData = useRoot();
 
-  console.log('Rerendered');
-
   function displayDate(date) {
     let localDate = new Date(date);
     let hours = localDate.getHours().toString().padStart(2, '0');

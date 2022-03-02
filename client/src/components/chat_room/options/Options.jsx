@@ -20,7 +20,6 @@ function Options({ isVisible, close }) {
   }
 
   useEffect(() => {
-    console.log('%c Options - Setting local variable {selectedTheme}', 'color: #bf55da');
     let storedTheme = getSelectedTheme();
     setSelectedTheme(storedTheme);
   }, []);

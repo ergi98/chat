@@ -20,7 +20,6 @@ function AudioPlayer(props) {
     }
 
     function setAudioEventListeners(currentAudio) {
-      console.log(`%c AudioPlayer - Setting audio listeners (${props.src})`, 'color: #bf55da');
       currentAudio.load();
       currentAudio.onloadedmetadata = () => {
         if (currentAudio.duration == Infinity) {

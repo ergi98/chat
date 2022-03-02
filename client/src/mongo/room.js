@@ -17,7 +17,6 @@ export async function create() {
 export async function getRoom() {
   try {
     let result = await AxiosInstance.get('/get-room');
-    console.log(result);
     return {
       room: result.data.roomData
     };

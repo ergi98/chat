@@ -28,7 +28,6 @@ function JoinRoom() {
       try {
         if (data || rootData.jwt) return;
         let data = await createUserAndAssignToRoom(roomId);
-        console.log({ data });
         setData(data);
       } catch (err) {
         message.error(err.message);

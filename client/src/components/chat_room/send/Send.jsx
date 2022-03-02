@@ -69,8 +69,6 @@ const Send = React.forwardRef((props, ref) => {
 
   useEffect(() => {
     async function startRecording() {
-      console.log('%c Send - Starting recording', 'color: #bf55da');
-
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           let audioStream = await navigator.mediaDevices.getUserMedia({
@@ -125,7 +123,6 @@ const Send = React.forwardRef((props, ref) => {
 
     return () => {
       if (audioRecorder) {
-        console.log('%c  Send - Stopping recording', 'background: red; color: #fefefe');
         audioRecorder.stop();
         audioRecorder = null;
       }
@@ -147,8 +144,6 @@ const Send = React.forwardRef((props, ref) => {
         });
       }
     }
-
-    audioRecorder && console.log('%c Send - Adding store recording callback', 'color: #bf55da');
     audioRecorder && (audioRecorder.onstop = storeRecording);
   }, [recordingData.chunks]);
 
@@ -202,8 +197,6 @@ const Send = React.forwardRef((props, ref) => {
         emitStopTyping();
       }
       sendingAudio && clearAudioRecording();
-
-      console.log('SEND', message);
       await props.addMessage(message);
     }
   }

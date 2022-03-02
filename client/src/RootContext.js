@@ -36,7 +36,6 @@ export function ContextProvider({ children }) {
 
   useEffect(() => {
     function initialSetup() {
-      console.log(`%c RootContext - Initial Setup`, 'color: #bada55');
       const JWT = JSON.parse(localStorage.getItem('jwt'));
       if (JWT) {
         let userData = jwt_decode(JWT);

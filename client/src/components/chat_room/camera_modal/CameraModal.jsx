@@ -29,8 +29,6 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
 
   useEffect(() => {
     async function setVideoSource(currentVideo) {
-      console.log('%c CameraModal - Creating video stream', 'color: #bf55da');
-
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           let deviceWidth = window.innerWidth;
@@ -62,10 +60,6 @@ function CameraModal({ isVisible, setSelectedImage, close }) {
 
     return () => {
       if (videoStream) {
-        console.log(
-          '%c  CameraModal - Stopping video stream (UseEffect)',
-          'background: red; color: #fefefe'
-        );
         videoStream.getTracks()?.forEach((track) => {
           if (track.readyState == 'live' && track.kind === 'video') track.stop();
         });
