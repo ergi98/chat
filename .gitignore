@@ -1,6 +1,7 @@
 node_modules
 .env
 dist
+dist.min
 certs/**
 images
 audio

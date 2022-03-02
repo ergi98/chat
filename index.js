@@ -2,6 +2,9 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 
+// Compression
+import compression from "compression";
+
 import { dirname, resolve } from "path";
 import { createServer } from "http";
 import { fileURLToPath } from "url";
@@ -45,6 +48,7 @@ const __dirname = dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
+app.use(compression());
 
 app.use("/images", express.static("images"));
 app.use("/audio", express.static("audio"));
