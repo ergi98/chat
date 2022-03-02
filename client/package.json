@@ -4,7 +4,7 @@
     "start": "webpack serve",
     "watch": "webpack --watch",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
-    "postbuild": "purgecss --css dist/*.css --content dist/index.html dist/*.js --output dist",
+    "purge": "purgecss --css dist/*.css --content dist/index.html dist/*.js --output dist",
     "compress": "gzipper compress ./dist ./dist.min --output-file-format [filename].[ext]",
     "build": "NODE_ENV=production webpack"
   },
