@@ -25,8 +25,28 @@ function PasteLinkDialog(props) {
 
   useEffect(() => {
     function getLinkFromClipboard() {
-      navigator.permissions.query({ name: 'clipboard-read' }).then((result) => {
-        if (result.state == 'granted' || result.state == 'prompt') {
+      try {
+        if (navigator.permissions) {
+          navigator.permissions.query({ name: 'clipboard-read' }).then((result) => {
+            if (result.state == 'granted' || result.state == 'prompt') {
+              navigator.clipboard.readText().then((text) => {
+                if (text) {
+                  let bits = text.split('\n');
+                  if (bits.length) {
+                    let url = bits[1];
+                    if (url && url?.includes(window.location.href)) {
+                      setRoomLink(url);
+                      setStatus({
+                        type: 'success',
+                        message: 'We found a link in your clipboard and pasted it for you!'
+                      });
+                    }
+                  }
+                }
+              });
+            }
+          });
+        } else if (navigator.clipboard) {
           navigator.clipboard.readText().then((text) => {
             if (text) {
               let bits = text.split('\n');
@@ -43,7 +63,9 @@ function PasteLinkDialog(props) {
             }
           });
         }
-      });
+      } catch (err) {
+        console.log(err);
+      }
     }
     getLinkFromClipboard();
   }, []);
