@@ -4,7 +4,7 @@
     "start": "webpack serve",
     "watch": "webpack --watch",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
-    "build:dev": "webpack",
+    "build:dev": "webpack && npx gzipper compress ./dist",
     "build": "NODE_ENV=production webpack",
     "serve:production": "START=false webpack serve"
   },
@@ -34,6 +34,7 @@
     "eslint-plugin-jsx-a11y": "6.5.1",
     "eslint-plugin-react": "7.28.0",
     "eslint-plugin-react-hooks": "4.3.0",
+    "gzipper": "7.0.0",
     "html-webpack-plugin": "5.5.0",
     "mini-css-extract-plugin": "2.4.7",
     "postcss": "8.4.5",
