@@ -28,7 +28,7 @@ function AppRoutes() {
     {
       path: '/join/:roomId',
       element: <JoinRoom />,
-      private: true
+      private: false
     },
     {
       path: '/wait/:roomId',

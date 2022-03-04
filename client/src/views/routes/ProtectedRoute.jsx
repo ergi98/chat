@@ -23,7 +23,7 @@ function ProtectedRoute({ children, path }) {
             let pathToGo = room.members.length > 1 ? `/chat/${room._id}` : `/wait/${room._id}`;
             if (pathToGo !== path) navigate(pathToGo, { replace: true });
           }
-        }
+        } else throw new Error
       } catch (err) {
         navigate('/', { replace: true });
         console.log(err);

@@ -11,7 +11,7 @@ import { createUserAndAssignToRoom } from '../../mongo/user';
 import { useRoot, useRootUpdate } from '../../RootContext';
 
 // ANTD
-import { Spin, message } from 'antd';
+import { Spin, Button, message } from 'antd';
 
 function JoinRoom() {
   const navigate = useNavigate();
@@ -21,7 +21,13 @@ function JoinRoom() {
   const updateRootData = useRootUpdate();
 
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+  const [isLeaving, setIsLeaving] = useState(false);
   const [hasSetListeners, setHasSetListeners] = useState(false);
+
+  function goToHome() {
+    navigate('/', { replace: true });
+  }
 
   useEffect(() => {
     async function create() {
@@ -31,6 +37,7 @@ function JoinRoom() {
         setData(data);
       } catch (err) {
         message.error(err.message);
+        setError('A problem occured while we were trying to join you to this room.');
       }
     }
     create();
@@ -59,11 +66,28 @@ function JoinRoom() {
 
   return (
     <main className={`height-full ${styles['joining-screen']}`}>
-      <div className={styles['joining-title']}>Joining Room</div>
-      <div className={styles.hint}>
-        Please be patient while we set things up for you! <br /> This should not take long 😁
-      </div>
-      <Spin size="large" className={styles.spinner} /> <br />
+      {error ? (
+        <>
+          <div className={styles['joining-title']}>Whoops!</div>
+          <div className={styles.hint}>{error}</div>
+          <Button
+            onClick={goToHome}
+            className={styles['leave-btn']}
+            loading={isLeaving}
+            type="primary"
+          >
+            Go Home
+          </Button>
+        </>
+      ) : (
+        <>
+          <div className={styles['joining-title']}>Joining Room</div>
+          <div className={styles.hint}>
+            Please be patient while we set things up for you! <br /> This should not take long 😁
+          </div>
+          <Spin size="large" className={styles.spinner} /> <br />
+        </>
+      )}
     </main>
   );
 }

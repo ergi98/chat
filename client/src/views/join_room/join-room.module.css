@@ -18,10 +18,11 @@
 
 .hint {
   color: var(--text-primary);
-  opacity: .8;
+  opacity: 0.8;
   margin-top: 24px;
 }
 
-.spinner {
+.spinner,
+.leave-btn {
   margin-top: 24px;
 }
