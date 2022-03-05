@@ -7,7 +7,7 @@ import jwt_decode from 'jwt-decode';
 import io from 'socket.io-client';
 
 // Axios
-import { setTokenInterceptor } from '../axios_config/axios-config';
+import { addResponseInterceptors, setTokenInterceptor } from '../axios_config/axios-config';
 
 // eslint-disable-next-line no-undef
 const socket = io.connect(process.env.REACT_APP_PROXY);
@@ -34,13 +34,30 @@ const initialContext = {
 export function ContextProvider({ children }) {
   const [rootContext, setRootContext] = useState({ ...initialContext });
 
+  function successCB(result) {
+    return result;
+  }
+
+  function errorCB(error) {
+    console.dir(error);
+    if (error.response.data.type === 'token_refresh') {
+      
+    }
+
+    return error;
+  }
+
   useEffect(() => {
     function initialSetup() {
       const JWT = JSON.parse(localStorage.getItem('jwt'));
+      const REFRESH = JSON.parse(localStorage.getItem('refresh'));
+
+      addResponseInterceptors(successCB, errorCB);
+
       if (JWT) {
         let userData = jwt_decode(JWT);
         socket.emit('new-member', JWT);
-        setTokenInterceptor(JWT);
+        setTokenInterceptor(JWT, REFRESH);
         updateRootContext({
           jwt: JWT,
           socket: socket,

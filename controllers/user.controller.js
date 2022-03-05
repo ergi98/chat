@@ -5,21 +5,35 @@ import UserSchema from "../schemas/user.schema.js";
 import RoomSchema from "../schemas/room.schema.js";
 
 // Services
-import { createToken } from "../services/token.service.js";
+import { createToken, createRefreshToken } from "../services/token.service.js";
 
 export default class UserController {
-  static async createUser(req, res) {
-    try {
-      const user = await UserSchema.create({ roomId: req.body.roomId });
-      let token = createToken(user._doc);
-      res.status(200).send({ user, token });
-    } catch (err) {
-      console.log(err);
-      res
-        .status(400)
-        .send({ message: "There was a problem with creating the user" });
-    }
-  }
+  // static async createUser(req, res) {
+  //   try {
+  //     let user, token, refreshToken;
+  //     session = await mongoose.startSession();
+
+  //     await session.withTransaction(async () => {
+  //       user = await UserSchema.create({ roomId: req.body.roomId });
+
+  //       token = createToken(user._doc);
+  //       refreshToken = createRefreshToken(user._doc);
+
+  //       await UserSchema.findByIdAndUpdate(user._doc._id, {
+  //         $set: { refreshToken: refreshToken },
+  //       });
+  //     });
+
+  //     res.status(200).send({ user, token, refreshToken });
+  //   } catch (err) {
+  //     console.log(err);
+  //     res
+  //       .status(400)
+  //       .send({ message: "There was a problem with creating the user" });
+  //   } finally {
+  //     session.endSession();
+  //   }
+  // }
 
   static async getUser(req, res) {
     try {
@@ -53,7 +67,7 @@ export default class UserController {
       let roomId = req.body.roomId;
       if (!roomId) throw new Error();
 
-      let user, room, token;
+      let user, room, token, refreshToken;
       session = await mongoose.startSession();
 
       await session.withTransaction(async () => {
@@ -63,7 +77,14 @@ export default class UserController {
         // If room does not exist
         if (roomCount !== 1) throw new Error();
         user = await UserSchema.create({ roomId });
+
         token = createToken(user._doc);
+        refreshToken = createRefreshToken(user._doc);
+
+        await UserSchema.findByIdAndUpdate(user._doc._id, {
+          $set: { refreshToken: refreshToken },
+        });
+
         room = await RoomSchema.findByIdAndUpdate(
           roomId,
           {
@@ -73,7 +94,7 @@ export default class UserController {
         );
       });
 
-      res.status(200).send({ user, token, room });
+      res.status(200).send({ user, token, room, refreshToken });
     } catch (err) {
       console.log(err);
       res
@@ -87,7 +108,7 @@ export default class UserController {
   static async createUserAndRoom(req, res) {
     let session;
     try {
-      let user, token, room;
+      let user, token, room, refreshToken;
       session = await mongoose.startSession();
 
       await session.withTransaction(async () => {
@@ -95,7 +116,14 @@ export default class UserController {
         room = await RoomSchema.create({});
         // Creating user
         user = await UserSchema.create({ roomId: room._doc._id });
+
         token = createToken(user._doc);
+        refreshToken = createRefreshToken(user._doc);
+
+        await UserSchema.findByIdAndUpdate(user._doc._id, {
+          $set: { refreshToken: refreshToken },
+        });
+
         // Adding user to room
         room = await RoomSchema.findByIdAndUpdate(
           room._doc._id,
@@ -106,7 +134,7 @@ export default class UserController {
         );
       });
 
-      res.status(200).send({ user, token, room });
+      res.status(200).send({ user, token, refreshToken, room });
     } catch (err) {
       console.log(err);
       res.status(400).send({

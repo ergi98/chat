@@ -1,20 +1,20 @@
 import { AxiosInstance, setTokenInterceptor } from '../../axios_config/axios-config';
 
-export async function create(roomId) {
-  try {
-    let result = await AxiosInstance.post('/create-user', { roomId });
-    localStorage.setItem('jwt', JSON.stringify(result.data.token));
-    setTokenInterceptor(result.data.token);
-    return {
-      user: result.data.user
-    };
-  } catch (err) {
-    console.log(err);
-    throw new Error(
-      err.response?.data?.message ?? 'A problem occurred while creating your room. Please refresh.'
-    );
-  }
-}
+// export async function create(roomId) {
+//   try {
+//     let result = await AxiosInstance.post('/create-user', { roomId });
+//     localStorage.setItem('jwt', JSON.stringify(result.data.token));
+//     setTokenInterceptor(result.data.token, result.data.refreshToken);
+//     return {
+//       user: result.data.user
+//     };
+//   } catch (err) {
+//     console.log(err);
+//     throw new Error(
+//       err.response?.data?.message ?? 'A problem occurred while creating your room. Please refresh.'
+//     );
+//   }
+// }
 
 export async function getUser() {
   try {
@@ -48,8 +48,12 @@ export async function checkIfUserBelongsToRoom() {
 export async function createUserAndAssignToRoom(roomId) {
   try {
     let result = await AxiosInstance.post('/create-user-and-assign', { roomId });
+
     localStorage.setItem('jwt', JSON.stringify(result.data.token));
-    setTokenInterceptor(result.data.token);
+    localStorage.setItem('refresh', JSON.stringify(result.data.refreshToken));
+
+    setTokenInterceptor(result.data.token, result.data.refreshToken);
+
     return result.data;
   } catch (err) {
     console.log(err);
@@ -63,8 +67,12 @@ export async function createUserAndAssignToRoom(roomId) {
 export async function createUserAndRoom() {
   try {
     let result = await AxiosInstance.post('/create-user-and-room');
+
     localStorage.setItem('jwt', JSON.stringify(result.data.token));
-    setTokenInterceptor(result.data.token);
+    localStorage.setItem('refresh', JSON.stringify(result.data.refreshToken));
+
+    setTokenInterceptor(result.data.token, result.data.refreshToken);
+    
     return result.data;
   } catch (err) {
     console.log(err);

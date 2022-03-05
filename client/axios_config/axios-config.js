@@ -6,22 +6,20 @@ const AxiosInstance = axios.create();
 // eslint-disable-next-line no-undef
 AxiosInstance.defaults.baseURL = process.env.REACT_APP_PROXY;
 
-AxiosInstance.interceptors.response.use(successInterceptor, errorInterceptor);
+function addResponseInterceptors(successCallback, errorCallback) {
+  AxiosInstance.interceptors.response.use(successCallback, errorCallback);
+}
 
-const successInterceptor = (res) => res;
-const errorInterceptor = (err) => {
-  console.dir(err);
-  return err;
-};
-
-function setTokenInterceptor(token) {
+function setTokenInterceptor(token, refreshToken) {
   if (token) {
     AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    AxiosInstance.defaults.headers.common['Refresh'] = `Bearer ${refreshToken}`;
   }
 }
 
 function clearAxiosInstance() {
   delete AxiosInstance.defaults.headers.common['Authorization'];
+  delete AxiosInstance.defaults.headers.common['Refresh'];
 }
 
-export { AxiosInstance, setTokenInterceptor, clearAxiosInstance };
+export { AxiosInstance, addResponseInterceptors, setTokenInterceptor, clearAxiosInstance };

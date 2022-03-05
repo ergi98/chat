@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     type: "ObjectId",
     ref: "chats",
   },
+  refreshToken: {
+    type: String,
+    required: false,
+    default: "",
+  },
 });
 
 export default mongoose.model("users", userSchema);
