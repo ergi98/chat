@@ -2,17 +2,40 @@
 const path = require('path');
 const webpack = require('webpack');
 
-require('dotenv').config({ path: '../.env' }); 
-
+require('dotenv').config({ path: '../.env' });
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
+// const glob = require('glob-all');
+// const PurgecssPlugin = require('purgecss-webpack-plugin');
+
 const plugins = [
   new CleanWebpackPlugin(),
   new MiniCssExtractPlugin(),
+  // new PurgecssPlugin({
+  //   paths: glob.sync(
+  //     [
+  //       `${path.join(__dirname, 'public')}/**/*`,
+  //       `${path.join(__dirname, 'src')}/**/*`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'button')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'slider')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'image')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'icon')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'input')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'menu')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'modal')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'spin')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'empty')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'space')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'tooltip')}/**/*'`,
+  //       `${path.join(__dirname, 'node_modules', 'antd', 'es', 'dropdown')}/**/*'`
+  //     ],
+  //     { nodir: true }
+  //   )
+  // }),
   new HtmlWebpackPlugin({
     template: './public/index.html'
   }),
